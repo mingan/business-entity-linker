@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Silk>
-	<Prefixes>
-	</Prefixes>
+	<Prefixes></Prefixes>
 
 	<DataSources>
 		<DataSource id="sourceA" type="file">
@@ -16,31 +15,18 @@
 			<Param name="file" value="w:\dip\dedup\exact\output.ttl" />
 			<Param name="format" value="TURTLE" />
 		</DataSource>-->
-
 	</DataSources>
 
 	<Interlinks>
 		<Interlink id="business_entity_exact">
 			<LinkType>owl:sameAs</LinkType>
-			<SourceDataset var="a">
-			</SourceDataset>
-			<TargetDataset var="b">
-			</TargetDataset>
-			<LinkageRule>
-				<Compare required="true" weight="1" metric="equality" threshold="0.0">
-					<Input path="?a/adms:identifier/skos:notation"/>
-					<Input path="?b/adms:identifier/skos:notation"/>
-				</Compare>
-			</LinkageRule>
+			<SourceDataset var="a"></SourceDataset>
+			<TargetDataset var="b"></TargetDataset>
+			<LinkageRule></LinkageRule>
 			<Filter/>
 		</Interlink>
 
 	</Interlinks>
-	<!--<Compare id="unnamed_1" required="false" weight="1" metric="inequality" threshold="0.0">
-	  <Input id="unnamed_2" path="?a"/>
-	  <Input id="unnamed_3" path="?b"/>
-	</Compare>-->
 
-	<Outputs>
-	</Outputs>
+	<Outputs></Outputs>
 </Silk>

@@ -30,6 +30,7 @@ public class RuleBuilder {
         addPrefixes();
         buildSourceDataset();
         buildTargetDataset();
+        buildComparison();
         buildOutputs();
     }
 
@@ -70,6 +71,29 @@ public class RuleBuilder {
         Element dataset = (Element) rule.getElementsByTagName("TargetDataset").item(0);
         dataset.setAttribute("dataSource", "sourceA");
         dataset.setTextContent("?b rdf:type " + config.getOrgSelectionB());
+    }
+
+    private void buildComparison() {
+/*
+        <Compare required="true" weight="1" metric="equality" threshold="0.0">
+        <Input path="?a/adms:identifier/skos:notation"/>
+        <Input path="?b/adms:identifier/skos:notation"/>
+        </Compare>*/
+        Element linkageRule = (Element) rule.getElementsByTagName("LinkageRule").item(0);
+
+        Element compare = rule.createElement("Compare");
+        compare.setAttribute("required", "true");
+        compare.setAttribute("metric", "equality");
+        compare.setAttribute("threshold", "0.0");
+
+        Element pathA = rule.createElement("Input");
+        pathA.setAttribute("path", "?a" + config.getIdentSelectionA());
+        Element pathB = rule.createElement("Input");
+        pathB.setAttribute("path", "?b" + config.getIdentSelectionB());
+
+        compare.appendChild(pathA);
+        compare.appendChild(pathB);
+        linkageRule.appendChild(compare);
     }
 
     private void buildOutputs() {

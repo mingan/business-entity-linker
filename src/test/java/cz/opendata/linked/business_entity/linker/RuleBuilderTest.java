@@ -2,10 +2,7 @@ package cz.opendata.linked.business_entity.linker;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -15,6 +12,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -24,6 +22,8 @@ public class RuleBuilderTest {
     private final String workingDirPath = "/path";
     private final String orgSelectionA = "schema:Organization";
     private final String orgSelectionB = "gr:BusinessEntity";
+    private final String identSelectionA = "/adms:identifier/skos:notation";
+    private final String identSelectionB = "/gr:vatID";
     private BusinessEntityLinkerConfig config;
     private RuleBuilder builder;
 
@@ -33,6 +33,8 @@ public class RuleBuilderTest {
         config.setConfidenceCutoff(0.9);
         config.setOrgSelectionA(orgSelectionA);
         config.setOrgSelectionB(orgSelectionB);
+        config.setIdentSelectionA(identSelectionA);
+        config.setIdentSelectionB(identSelectionB);
         builder = new RuleBuilder(config, workingDirPath);
     }
 
@@ -74,6 +76,21 @@ public class RuleBuilderTest {
         Node restrict = source.getFirstChild();
         assertTrue(restrict != null);
         assertThat("?b rdf:type " + orgSelectionB, is(source.getTextContent().trim()));
+    }
+
+    @Test
+    public void testIdentComparison() throws Exception {
+        Node linkageRule = builder.getRule().getElementsByTagName("LinkageRule").item(0);
+        NodeList components = linkageRule.getChildNodes();
+        assertThat(components.getLength(), is(1));
+
+        Node compare = components.item(0);
+        assertThat(compare.getNodeName(), is("Compare"));
+        assertThat(((Element) compare).getAttribute("metric"), is("equality"));
+
+        assertThat(compare.getChildNodes().getLength(), is(2));
+        assertThat(((Element) compare.getFirstChild()).getAttribute("path"), containsString(identSelectionA));
+        assertThat(((Element) compare.getLastChild()).getAttribute("path"), containsString(identSelectionB));
     }
 
     private void printXml(Document doc) {
