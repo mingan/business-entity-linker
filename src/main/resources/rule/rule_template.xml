@@ -3,10 +3,7 @@
 	<Prefixes></Prefixes>
 
 	<DataSources>
-		<DataSource id="sourceA" type="file">
-			<Param name="file" value="w:\dip\dedup\data-test.ttl" />
-			<Param name="format" value="TURTLE" />
-		</DataSource>
+		<DataSource id="sourceA" type="file"></DataSource>
 	</DataSources>
 
 	<Interlinks>

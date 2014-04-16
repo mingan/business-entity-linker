@@ -28,6 +28,7 @@ public class RuleBuilder {
         this.workingDirPath = workingDirPath;
         this.rule = loadTemplate();
         addPrefixes();
+        buildDataSources();
         buildSourceDataset();
         buildTargetDataset();
         buildComparison();
@@ -59,6 +60,21 @@ public class RuleBuilder {
             s.setAttribute("namespace", schema.getValue());
             prefixes.appendChild(s);
         }
+    }
+
+    private void buildDataSources() {
+        Element sourceA = (Element) rule.getElementsByTagName("DataSource").item(0);
+
+        Element file = rule.createElement("Param");
+        file.setAttribute("name", "file");
+        file.setAttribute("value",  workingDirPath + File.separator + "source.nt");
+
+        Element format = rule.createElement("Param");
+        format.setAttribute("name", "format");
+        format.setAttribute("value", "N-TRIPLE");
+
+        sourceA.appendChild(file);
+        sourceA.appendChild(format);
     }
 
     private void buildSourceDataset() {

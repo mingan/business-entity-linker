@@ -7,6 +7,7 @@ import cz.cuni.mff.xrg.odcs.rdf.exceptions.RDFException;
 import cz.cuni.mff.xrg.odcs.rdf.interfaces.RDFDataUnit;
 import org.junit.Before;
 import org.junit.Test;
+import org.openrdf.rio.RDFFormat;
 
 import java.util.Random;
 
@@ -39,11 +40,9 @@ public class BusinessEntityLinkerTest {
 
     @Test
     public void testLinker() throws Exception {
-        // setup data units
         try {
             linker.configureDirectly(config);
-            //sourceData = env.createRdfInputFromResource("sourceData", false, ".ttl", RDFFormat.TURTLE);
-            sourceData = env.createRdfInput("Source dataset", false);
+            sourceData = env.createRdfInputFromResource("Source dataset", false, "exact.ttl", RDFFormat.TURTLE);
             goodLinks = env.createRdfOutput("Good links", false);
             probableLinks = env.createRdfOutput("Probable links", false);
         } catch (Exception e) {
@@ -51,7 +50,6 @@ public class BusinessEntityLinkerTest {
             fail();
         }
 
-        // run and assert
         try {
             env.run(linker);
 

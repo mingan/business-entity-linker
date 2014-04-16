@@ -49,6 +49,11 @@ public class RuleBuilderTest {
     }
 
     @Test
+    public void testDataSources() throws Exception {
+        assertTrue(builder.getRule().getElementsByTagName("DataSource").getLength() == 1);
+    }
+
+    @Test
     public void testBuildOutputs() throws Exception {
         NodeList outputs = builder.getRule().getElementsByTagName("Output");
         assertTrue(outputs.getLength() == 2);

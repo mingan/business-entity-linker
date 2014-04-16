@@ -4,11 +4,13 @@ import cz.cuni.mff.xrg.odcs.commons.data.DataUnitException;
 import cz.cuni.mff.xrg.odcs.commons.dpu.DPUContext;
 import cz.cuni.mff.xrg.odcs.commons.dpu.DPUException;
 import cz.cuni.mff.xrg.odcs.commons.dpu.annotation.AsTransformer;
+import cz.cuni.mff.xrg.odcs.commons.dpu.annotation.InputDataUnit;
 import cz.cuni.mff.xrg.odcs.commons.dpu.annotation.OutputDataUnit;
 import cz.cuni.mff.xrg.odcs.commons.message.MessageType;
 import cz.cuni.mff.xrg.odcs.commons.module.dpu.ConfigurableBase;
 import cz.cuni.mff.xrg.odcs.commons.web.AbstractConfigDialog;
 import cz.cuni.mff.xrg.odcs.commons.web.ConfigDialogProvider;
+import cz.cuni.mff.xrg.odcs.rdf.enums.RDFFormatType;
 import cz.cuni.mff.xrg.odcs.rdf.interfaces.RDFDataUnit;
 import de.fuberlin.wiwiss.silk.Silk;
 import org.openrdf.rio.RDFFormat;
@@ -32,8 +34,8 @@ public class BusinessEntityLinker extends ConfigurableBase<BusinessEntityLinkerC
 
     private static final Logger log = LoggerFactory.getLogger(BusinessEntityLinker.class);
 	
-//	@InputDataUnit(name="Source dataset")
-//	public RDFDataUnit sourceData;
+	@InputDataUnit(name = "Source dataset")
+	public RDFDataUnit sourceData;
 
 //    @InputDataUnit
 //    public RDFDataUnit sourceDataTarget;
@@ -58,17 +60,16 @@ public class BusinessEntityLinker extends ConfigurableBase<BusinessEntityLinkerC
 	public void execute(DPUContext context)
 			throws DPUException,
 				DataUnitException {
-        //sourceData = null;
+
+        String workingDirPath = context.getWorkingDir().getPath();
+        sourceData.loadToFile(new File(workingDirPath + File.separator + "source.nt"), RDFFormatType.NT);
         // extract data from data unit to file
 
         // build a linkage rule based on config
-        String workingDirPath = context.getWorkingDir().getPath();
         RuleBuilder builder = new RuleBuilder(config, workingDirPath);
 
         // save the rule to file
         String path = getPathToConfig(context);
-        path = "W:\\dip\\dedup\\config.xml";
-        log.debug("### " + path);
         if (path == null) {
             context.sendMessage(MessageType.TERMINATION_REQUEST, "Failed to write Silk configuration");
         } else {
