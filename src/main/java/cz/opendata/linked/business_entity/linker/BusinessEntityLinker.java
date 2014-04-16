@@ -18,10 +18,16 @@ public class BusinessEntityLinker extends ConfigurableBase<BusinessEntityLinkerC
 	{
 	
 	@InputDataUnit
-	public RDFDataUnit rdfInput;
+	public RDFDataUnit sourceData;
+
+    @InputDataUnit
+    public RDFDataUnit sourceDataTarget;
 	
 	@OutputDataUnit
-	public RDFDataUnit rdfOutput;
+	public RDFDataUnit goodLinks;
+
+    @OutputDataUnit
+    public RDFDataUnit probableLinks;
 	
 	public BusinessEntityLinker() {
 		super(BusinessEntityLinkerConfig.class);
@@ -37,10 +43,16 @@ public class BusinessEntityLinker extends ConfigurableBase<BusinessEntityLinkerC
 	public void execute(DPUContext context)
 			throws DPUException,
 				DataUnitException {
-		
-		// DPU's configuration is accessible under 'this.config' 
-                // DPU's context is accessible under 'context'
-                // DPU's data units are accessible under 'rdfInput' and 'rdfOutput'
+
+        // extract data from data unit to file
+
+        // build a linkage rule based on config
+
+        // save the rule to file
+
+        // run Silk
+
+        // load results to output data units
 	}
 	
 }

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Silk>
+	<Prefixes>
+	</Prefixes>
+
+	<DataSources>
+		<DataSource id="usaspending" type="file">
+			<Param name="file" value="w:\dip\dedup\output1" />
+			<Param name="format" value="TURTLE" />
+		</DataSource>
+		<!--<DataSource id="usaspending2" type="file">
+			<Param name="file" value="w:\dip\output2" />
+			<Param name="format" value="TURTLE" />
+		  </DataSource>
+		<DataSource id="source2" type="file">
+			<Param name="file" value="w:\dip\dedup\exact\output.ttl" />
+			<Param name="format" value="TURTLE" />
+		</DataSource>-->
+
+	</DataSources>
+
+	<Interlinks>
+		<Interlink id="business_entity_exact">
+			<LinkType>owl:sameAs</LinkType>
+			<SourceDataset dataSource="usaspending" var="a">
+				<RestrictTo>
+					?a rdf:type gr:BusinessEntity
+
+				</RestrictTo>
+			</SourceDataset>
+			<TargetDataset dataSource="usaspending" var="b">
+				<RestrictTo>
+					?b rdf:type gr:BusinessEntity
+				</RestrictTo>
+			</TargetDataset>
+			<LinkageRule>
+				<Compare required="true" weight="1" metric="equality" threshold="0.0">
+					<Input path="?a/adms:identifier/skos:notation"/>
+					<Input path="?b/adms:identifier/skos:notation"/>
+				</Compare>
+			</LinkageRule>
+			<Filter/>
+		</Interlink>
+
+	</Interlinks>
+	<!--<Compare id="unnamed_1" required="false" weight="1" metric="inequality" threshold="0.0">
+	  <Input id="unnamed_2" path="?a"/>
+	  <Input id="unnamed_3" path="?b"/>
+	</Compare>-->
+
+	<Outputs>
+	</Outputs>
+</Silk>

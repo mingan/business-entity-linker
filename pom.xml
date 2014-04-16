@@ -23,6 +23,17 @@
 
 		<dpu.odcs.dir>../ODCS/target/dpu</dpu.odcs.dir>
 	</properties>
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources/rule</directory>
+				<targetPath>rule</targetPath>
+				<includes>
+					<include>rule_template.xml</include>
+				</includes>
+			</resource>
+		</resources>
+	</build>
 
 	<dependencies>
 		<dependency>
