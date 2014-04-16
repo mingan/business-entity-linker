@@ -4,7 +4,7 @@
 	</Prefixes>
 
 	<DataSources>
-		<DataSource id="usaspending" type="file">
+		<DataSource id="sourceA" type="file">
 			<Param name="file" value="w:\dip\dedup\output1" />
 			<Param name="format" value="TURTLE" />
 		</DataSource>
@@ -22,16 +22,9 @@
 	<Interlinks>
 		<Interlink id="business_entity_exact">
 			<LinkType>owl:sameAs</LinkType>
-			<SourceDataset dataSource="usaspending" var="a">
-				<RestrictTo>
-					?a rdf:type gr:BusinessEntity
-
-				</RestrictTo>
+			<SourceDataset var="a">
 			</SourceDataset>
-			<TargetDataset dataSource="usaspending" var="b">
-				<RestrictTo>
-					?b rdf:type gr:BusinessEntity
-				</RestrictTo>
+			<TargetDataset var="b">
 			</TargetDataset>
 			<LinkageRule>
 				<Compare required="true" weight="1" metric="equality" threshold="0.0">

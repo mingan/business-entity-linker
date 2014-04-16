@@ -33,6 +33,21 @@ public class BusinessEntityLinkerConfig extends DPUConfigObjectBase {
     public BusinessEntityLinkerConfig() {
     }
 
+    public String getOrgSelectionA() {
+        return orgSelectionA;
+    }
+
+    public void setOrgSelectionA(String orgSelectionA) {
+        this.orgSelectionA = orgSelectionA;
+    }
+
+    public String getOrgSelectionB() {
+        return orgSelectionB;
+    }
+
+    public void setOrgSelectionB(String orgSelectionB) {
+        this.orgSelectionB = orgSelectionB;
+    }
 
     public Double getConfidenceCutoff() {
         return confidenceCutoff;

@@ -3,6 +3,8 @@ package cz.opendata.linked.business_entity.linker;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.transform.Transformer;
@@ -13,11 +15,15 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class RuleBuilderTest {
 
     private final String workingDirPath = "/path";
+    private final String orgSelectionA = "schema:Organization";
+    private final String orgSelectionB = "gr:BusinessEntity";
     private BusinessEntityLinkerConfig config;
     private RuleBuilder builder;
 
@@ -25,6 +31,8 @@ public class RuleBuilderTest {
     public void prepare() {
         config = new BusinessEntityLinkerConfig();
         config.setConfidenceCutoff(0.9);
+        config.setOrgSelectionA(orgSelectionA);
+        config.setOrgSelectionB(orgSelectionB);
         builder = new RuleBuilder(config, workingDirPath);
     }
 
@@ -42,6 +50,30 @@ public class RuleBuilderTest {
     public void testBuildOutputs() throws Exception {
         NodeList outputs = builder.getRule().getElementsByTagName("Output");
         assertTrue(outputs.getLength() == 2);
+    }
+
+    @Test
+    public void testSourceDataset() throws Exception {
+        Node source = builder.getRule().getElementsByTagName("SourceDataset").item(0);
+        assertTrue(source != null);
+        NamedNodeMap attrs = source.getAttributes();
+        assertTrue(attrs != null);
+        assertThat("sourceA", is(attrs.getNamedItem("dataSource").getTextContent()));
+        Node restrict = source.getFirstChild();
+        assertTrue(restrict != null);
+        assertThat("?a rdf:type " + orgSelectionA, is(source.getTextContent().trim()));
+    }
+
+    @Test
+    public void testTargetDataset() throws Exception {
+        Node source = builder.getRule().getElementsByTagName("TargetDataset").item(0);
+        assertTrue(source != null);
+        NamedNodeMap attrs = source.getAttributes();
+        assertTrue(attrs != null);
+        assertThat("sourceA", is(attrs.getNamedItem("dataSource").getTextContent()));
+        Node restrict = source.getFirstChild();
+        assertTrue(restrict != null);
+        assertThat("?b rdf:type " + orgSelectionB, is(source.getTextContent().trim()));
     }
 
     private void printXml(Document doc) {

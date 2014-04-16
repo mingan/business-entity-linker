@@ -28,7 +28,8 @@ public class RuleBuilder {
         this.workingDirPath = workingDirPath;
         this.rule = loadTemplate();
         addPrefixes();
-
+        buildSourceDataset();
+        buildTargetDataset();
         buildOutputs();
     }
 
@@ -57,6 +58,18 @@ public class RuleBuilder {
             s.setAttribute("namespace", schema.getValue());
             prefixes.appendChild(s);
         }
+    }
+
+    private void buildSourceDataset() {
+        Element dataset = (Element) rule.getElementsByTagName("SourceDataset").item(0);
+        dataset.setAttribute("dataSource", "sourceA");
+        dataset.setTextContent("?a rdf:type " + config.getOrgSelectionA());
+    }
+
+    private void buildTargetDataset() {
+        Element dataset = (Element) rule.getElementsByTagName("TargetDataset").item(0);
+        dataset.setAttribute("dataSource", "sourceA");
+        dataset.setTextContent("?b rdf:type " + config.getOrgSelectionB());
     }
 
     private void buildOutputs() {
