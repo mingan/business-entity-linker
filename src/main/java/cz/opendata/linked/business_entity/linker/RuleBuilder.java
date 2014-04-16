@@ -116,7 +116,10 @@ public class RuleBuilder {
     }
 
     private void buildComparison() {
-        Element linkageRule = (Element) rule.getElementsByTagName("LinkageRule").item(0);
+        Element root = (Element) rule.getElementsByTagName("LinkageRule").item(0);
+        if (config.getNumberOfSources() == 1) {
+            root = buildIneqalityAggregation(root);
+        }
 
         Element compare = rule.createElement("Compare");
         compare.setAttribute("required", "true");
@@ -130,7 +133,31 @@ public class RuleBuilder {
 
         compare.appendChild(pathA);
         compare.appendChild(pathB);
-        linkageRule.appendChild(compare);
+        root.appendChild(compare);
+    }
+
+    private Element buildIneqalityAggregation(Element root) {
+        Element aggregate = rule.createElement("Aggregate");
+        aggregate.setAttribute("type", "min");
+
+        Element compare = rule.createElement("Compare");
+        compare.setAttribute("metric", "inequality");
+        compare.setAttribute("threshold", "0.0");
+        compare.setAttribute("required", "true");
+
+        Element pathA = rule.createElement("Input");
+        pathA.setAttribute("path", "?a");
+        Element pathB = rule.createElement("Input");
+        pathB.setAttribute("path", "?b");
+
+        compare.appendChild(pathA);
+        compare.appendChild(pathB);
+
+        aggregate.appendChild(compare);
+        root.appendChild(aggregate);
+
+        return aggregate;
+
     }
 
     private void buildOutputs() {

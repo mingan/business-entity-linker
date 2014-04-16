@@ -8,3 +8,7 @@ ns1:b1	rdf:type	ns2:BusinessEntity ;
 ns1:b2	rdf:type	ns2:BusinessEntity ;
 	ns3:name	"Two" ;
 	ns3:vatID	"123456789" .
+
+ns1:false1	rdf:type	ns2:BusinessEntity ;
+	ns3:name	"Two" ;
+	ns3:vatID	"xxxx" .

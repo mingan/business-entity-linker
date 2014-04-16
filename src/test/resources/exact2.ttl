@@ -5,3 +5,8 @@
 ns1:b3	rdf:type	ns2:BusinessEntity ;
 	ns3:name	"Three" ;
 	ns3:vatID	"123456789" .
+
+
+ns1:false2	rdf:type	ns2:BusinessEntity ;
+	ns3:name	"Two" ;
+	ns3:vatID	"zzzz" .

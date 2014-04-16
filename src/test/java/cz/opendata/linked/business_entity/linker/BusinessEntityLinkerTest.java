@@ -42,7 +42,7 @@ public class BusinessEntityLinkerTest {
     @Test
     public void testExact() throws Exception {
         sourceData = env.createRdfInputFromResource("Source dataset", false, "exact.ttl", RDFFormat.TURTLE);
-        runTest("exact", 4, 0);
+        runTest("exact", 2, 0);
     }
 
     @Test

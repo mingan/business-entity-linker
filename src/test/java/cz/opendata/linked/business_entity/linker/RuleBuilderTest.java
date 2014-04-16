@@ -12,9 +12,9 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
 
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -64,7 +64,6 @@ public class RuleBuilderTest {
         String idA = ((Element) builder.getRule().getElementsByTagName("DataSource").item(0)).getAttribute("id");
         String idB = ((Element) builder.getRule().getElementsByTagName("DataSource").item(1)).getAttribute("id");
         assertThat(idA, not(is(idB)));
-        printXml(builder.getRule());
     }
 
     @Test
@@ -119,6 +118,7 @@ public class RuleBuilderTest {
 
     @Test
     public void testIdentComparison() throws Exception {
+        config.setNumberOfSources(2);
         builder = new RuleBuilder(config, workingDirPath);
         Node linkageRule = builder.getRule().getElementsByTagName("LinkageRule").item(0);
         NodeList components = linkageRule.getChildNodes();
@@ -131,6 +131,25 @@ public class RuleBuilderTest {
         assertThat(compare.getChildNodes().getLength(), is(2));
         assertThat(((Element) compare.getFirstChild()).getAttribute("path"), containsString(identSelectionA));
         assertThat(((Element) compare.getLastChild()).getAttribute("path"), containsString(identSelectionB));
+    }
+
+    @Test
+    public void testIdentComparisonWithSelfLinking() throws Exception {
+        builder = new RuleBuilder(config, workingDirPath);
+        Node linkageRule = builder.getRule().getElementsByTagName("LinkageRule").item(0);
+        NodeList components = linkageRule.getChildNodes();
+        assertThat(components.getLength(), is(1));
+
+        Node aggregate = components.item(0);
+        assertThat(aggregate.getNodeName(), is("Aggregate"));
+        assertThat(((Element) aggregate).getAttribute("type"), is("min"));
+
+        assertThat(aggregate.getChildNodes().getLength(), is(2));
+        NodeList compares = aggregate.getChildNodes();
+        assertThat(((Element) compares.item(0)).getAttribute("metric"), is("inequality"));
+        assertThat(((Element) compares.item(0)).getAttribute("required"), is("true"));
+        assertThat(((Element) compares.item(1)).getAttribute("metric"), is("equality"));
+        assertThat(((Element) compares.item(1)).getAttribute("required"), is("true"));
     }
 
     private void printXml(Document doc) {
