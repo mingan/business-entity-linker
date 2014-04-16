@@ -4,21 +4,13 @@
 
 	<DataSources>
 		<DataSource id="sourceA" type="file">
-			<Param name="file" value="w:\dip\dedup\output1" />
+			<Param name="file" value="w:\dip\dedup\data-test.ttl" />
 			<Param name="format" value="TURTLE" />
 		</DataSource>
-		<!--<DataSource id="usaspending2" type="file">
-			<Param name="file" value="w:\dip\output2" />
-			<Param name="format" value="TURTLE" />
-		  </DataSource>
-		<DataSource id="source2" type="file">
-			<Param name="file" value="w:\dip\dedup\exact\output.ttl" />
-			<Param name="format" value="TURTLE" />
-		</DataSource>-->
 	</DataSources>
 
 	<Interlinks>
-		<Interlink id="business_entity_exact">
+		<Interlink id="business_entity">
 			<LinkType>owl:sameAs</LinkType>
 			<SourceDataset var="a"></SourceDataset>
 			<TargetDataset var="b"></TargetDataset>

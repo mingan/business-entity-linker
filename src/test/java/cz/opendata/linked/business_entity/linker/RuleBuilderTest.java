@@ -63,7 +63,8 @@ public class RuleBuilderTest {
         assertThat("sourceA", is(attrs.getNamedItem("dataSource").getTextContent()));
         Node restrict = source.getFirstChild();
         assertTrue(restrict != null);
-        assertThat("?a rdf:type " + orgSelectionA, is(source.getTextContent().trim()));
+        assertThat(restrict.getNodeName(), is("RestrictTo"));
+        assertThat("?a rdf:type " + orgSelectionA, is(restrict.getTextContent().trim()));
     }
 
     @Test
@@ -75,7 +76,8 @@ public class RuleBuilderTest {
         assertThat("sourceA", is(attrs.getNamedItem("dataSource").getTextContent()));
         Node restrict = source.getFirstChild();
         assertTrue(restrict != null);
-        assertThat("?b rdf:type " + orgSelectionB, is(source.getTextContent().trim()));
+        assertThat(restrict.getNodeName(), is("RestrictTo"));
+        assertThat("?b rdf:type " + orgSelectionB, is(restrict.getTextContent().trim()));
     }
 
     @Test

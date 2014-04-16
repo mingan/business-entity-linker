@@ -64,21 +64,20 @@ public class RuleBuilder {
     private void buildSourceDataset() {
         Element dataset = (Element) rule.getElementsByTagName("SourceDataset").item(0);
         dataset.setAttribute("dataSource", "sourceA");
-        dataset.setTextContent("?a rdf:type " + config.getOrgSelectionA());
+        Element restrictTo = rule.createElement("RestrictTo");
+        restrictTo.setTextContent("?a rdf:type " + config.getOrgSelectionA());
+        dataset.appendChild(restrictTo);
     }
 
     private void buildTargetDataset() {
         Element dataset = (Element) rule.getElementsByTagName("TargetDataset").item(0);
         dataset.setAttribute("dataSource", "sourceA");
-        dataset.setTextContent("?b rdf:type " + config.getOrgSelectionB());
+        Element restrictTo = rule.createElement("RestrictTo");
+        restrictTo.setTextContent("?b rdf:type " + config.getOrgSelectionB());
+        dataset.appendChild(restrictTo);
     }
 
     private void buildComparison() {
-/*
-        <Compare required="true" weight="1" metric="equality" threshold="0.0">
-        <Input path="?a/adms:identifier/skos:notation"/>
-        <Input path="?b/adms:identifier/skos:notation"/>
-        </Compare>*/
         Element linkageRule = (Element) rule.getElementsByTagName("LinkageRule").item(0);
 
         Element compare = rule.createElement("Compare");
@@ -87,9 +86,9 @@ public class RuleBuilder {
         compare.setAttribute("threshold", "0.0");
 
         Element pathA = rule.createElement("Input");
-        pathA.setAttribute("path", "?a" + config.getIdentSelectionA());
+        pathA.setAttribute("path", "?a/" + config.getIdentSelectionA());
         Element pathB = rule.createElement("Input");
-        pathB.setAttribute("path", "?b" + config.getIdentSelectionB());
+        pathB.setAttribute("path", "?b/" + config.getIdentSelectionB());
 
         compare.appendChild(pathA);
         compare.appendChild(pathB);
