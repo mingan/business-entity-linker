@@ -75,6 +75,24 @@ public class RuleBuilder {
 
         sourceA.appendChild(file);
         sourceA.appendChild(format);
+
+        if (config.getNumberOfSources() == 2) {
+            Element sourceB = rule.createElement("DataSource");
+            sourceB.setAttribute("id", "sourceB");
+            sourceB.setAttribute("type", "file");
+
+            file = rule.createElement("Param");
+            file.setAttribute("name", "file");
+            file.setAttribute("value",  workingDirPath + File.separator + "target.nt");
+
+            format = rule.createElement("Param");
+            format.setAttribute("name", "format");
+            format.setAttribute("value", "N-TRIPLE");
+
+            sourceB.appendChild(file);
+            sourceB.appendChild(format);
+            sourceA.getParentNode().appendChild(sourceB);
+        }
     }
 
     private void buildSourceDataset() {
@@ -87,7 +105,11 @@ public class RuleBuilder {
 
     private void buildTargetDataset() {
         Element dataset = (Element) rule.getElementsByTagName("TargetDataset").item(0);
-        dataset.setAttribute("dataSource", "sourceA");
+        String source = "sourceA";
+        if (config.getNumberOfSources() == 2) {
+            source = "sourceB";
+        }
+        dataset.setAttribute("dataSource", source);
         Element restrictTo = rule.createElement("RestrictTo");
         restrictTo.setTextContent("?b rdf:type " + config.getOrgSelectionB());
         dataset.appendChild(restrictTo);

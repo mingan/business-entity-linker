@@ -22,6 +22,7 @@ public class BusinessEntityLinkerTest {
     private BusinessEntityLinkerConfig config;
     private TestEnvironment env;
     private RDFDataUnit sourceData;
+    private RDFDataUnit targetData;
     private RDFDataUnit goodLinks;
     private RDFDataUnit probableLinks;
 
@@ -39,10 +40,21 @@ public class BusinessEntityLinkerTest {
     }
 
     @Test
-    public void testLinker() throws Exception {
+    public void testExact() throws Exception {
+        sourceData = env.createRdfInputFromResource("Source dataset", false, "exact.ttl", RDFFormat.TURTLE);
+        runTest("exact", 4, 0);
+    }
+
+    @Test
+    public void testExactWithTwoDatasets() throws Exception {
+        sourceData = env.createRdfInputFromResource("Source dataset", false, "exact.ttl", RDFFormat.TURTLE);
+        targetData = env.createRdfInputFromResource("Target dataset", false, "exact2.ttl", RDFFormat.TURTLE);
+        runTest("two exact", 2, 0);
+    }
+
+    private void runTest(String name, int exact, int probable) {
         try {
             linker.configureDirectly(config);
-            sourceData = env.createRdfInputFromResource("Source dataset", false, "exact.ttl", RDFFormat.TURTLE);
             goodLinks = env.createRdfOutput("Good links", false);
             probableLinks = env.createRdfOutput("Probable links", false);
         } catch (Exception e) {
@@ -53,10 +65,10 @@ public class BusinessEntityLinkerTest {
         try {
             env.run(linker);
 
-            printResultToFile("test");
+            printResultToFile(name);
 
-            assertTrue(goodLinks.getTripleCount() == 4);
-            assertTrue(probableLinks.getTripleCount() == 0);
+            assertTrue(goodLinks.getTripleCount() == exact);
+            assertTrue(probableLinks.getTripleCount() == probable);
         } catch (Exception e) {
             e.printStackTrace();
             fail();

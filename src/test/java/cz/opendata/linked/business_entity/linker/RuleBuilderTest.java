@@ -14,6 +14,7 @@ import java.io.StringWriter;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -35,32 +36,47 @@ public class RuleBuilderTest {
         config.setOrgSelectionB(orgSelectionB);
         config.setIdentSelectionA(identSelectionA);
         config.setIdentSelectionB(identSelectionB);
-        builder = new RuleBuilder(config, workingDirPath);
     }
 
     @Test
     public void testLoadTemplate() {
+        builder = new RuleBuilder(config, workingDirPath);
         assertTrue(builder.getRule() != null);
     }
 
     @Test
     public void testAppendSchemas() throws Exception {
+        builder = new RuleBuilder(config, workingDirPath);
         assertTrue(builder.getRule().getElementsByTagName("Prefix").getLength() == Schemas.getSchemas().size());
     }
 
     @Test
-    public void testDataSources() throws Exception {
+    public void testOneDataSource() throws Exception {
+        builder = new RuleBuilder(config, workingDirPath);
         assertTrue(builder.getRule().getElementsByTagName("DataSource").getLength() == 1);
     }
 
     @Test
+    public void testTwoDataSources() throws Exception {
+        config.setNumberOfSources(2);
+        builder = new RuleBuilder(config, workingDirPath);
+        assertTrue(builder.getRule().getElementsByTagName("DataSource").getLength() == 2);
+        String idA = ((Element) builder.getRule().getElementsByTagName("DataSource").item(0)).getAttribute("id");
+        String idB = ((Element) builder.getRule().getElementsByTagName("DataSource").item(1)).getAttribute("id");
+        assertThat(idA, not(is(idB)));
+        printXml(builder.getRule());
+    }
+
+    @Test
     public void testBuildOutputs() throws Exception {
+        builder = new RuleBuilder(config, workingDirPath);
         NodeList outputs = builder.getRule().getElementsByTagName("Output");
         assertTrue(outputs.getLength() == 2);
     }
 
     @Test
     public void testSourceDataset() throws Exception {
+        builder = new RuleBuilder(config, workingDirPath);
         Node source = builder.getRule().getElementsByTagName("SourceDataset").item(0);
         assertTrue(source != null);
         NamedNodeMap attrs = source.getAttributes();
@@ -73,7 +89,8 @@ public class RuleBuilderTest {
     }
 
     @Test
-    public void testTargetDataset() throws Exception {
+    public void testTargetDatasetWithOneSource() throws Exception {
+        builder = new RuleBuilder(config, workingDirPath);
         Node source = builder.getRule().getElementsByTagName("TargetDataset").item(0);
         assertTrue(source != null);
         NamedNodeMap attrs = source.getAttributes();
@@ -86,7 +103,23 @@ public class RuleBuilderTest {
     }
 
     @Test
+    public void testTargetDatasetWithTwoSources() throws Exception {
+        config.setNumberOfSources(2);
+        builder = new RuleBuilder(config, workingDirPath);
+        Node source = builder.getRule().getElementsByTagName("TargetDataset").item(0);
+        assertTrue(source != null);
+        NamedNodeMap attrs = source.getAttributes();
+        assertTrue(attrs != null);
+        assertThat("sourceB", is(attrs.getNamedItem("dataSource").getTextContent()));
+        Node restrict = source.getFirstChild();
+        assertTrue(restrict != null);
+        assertThat(restrict.getNodeName(), is("RestrictTo"));
+        assertThat("?b rdf:type " + orgSelectionB, is(restrict.getTextContent().trim()));
+    }
+
+    @Test
     public void testIdentComparison() throws Exception {
+        builder = new RuleBuilder(config, workingDirPath);
         Node linkageRule = builder.getRule().getElementsByTagName("LinkageRule").item(0);
         NodeList components = linkageRule.getChildNodes();
         assertThat(components.getLength(), is(1));
@@ -115,6 +148,5 @@ public class RuleBuilderTest {
         }
 
         System.out.print(w.toString());
-
     }
 }

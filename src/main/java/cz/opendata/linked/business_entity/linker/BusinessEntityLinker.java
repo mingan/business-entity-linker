@@ -37,8 +37,8 @@ public class BusinessEntityLinker extends ConfigurableBase<BusinessEntityLinkerC
 	@InputDataUnit(name = "Source dataset")
 	public RDFDataUnit sourceData;
 
-//    @InputDataUnit
-//    public RDFDataUnit sourceDataTarget;
+    @InputDataUnit(name = "Target dataset", optional = true)
+    public RDFDataUnit targetData;
 	
 	@OutputDataUnit(name = "Good links")
 	public RDFDataUnit goodLinks;
@@ -63,6 +63,12 @@ public class BusinessEntityLinker extends ConfigurableBase<BusinessEntityLinkerC
 
         String workingDirPath = context.getWorkingDir().getPath();
         sourceData.loadToFile(new File(workingDirPath + File.separator + "source.nt"), RDFFormatType.NT);
+        config.setNumberOfSources(1);
+
+        if (targetData != null) {
+            targetData.loadToFile(new File(workingDirPath + File.separator + "target.nt"), RDFFormatType.NT);
+            config.setNumberOfSources(2);
+        }
         // extract data from data unit to file
 
         // build a linkage rule based on config

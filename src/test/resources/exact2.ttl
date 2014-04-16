@@ -2,9 +2,6 @@
 @prefix ns1:	<http://ld.mingan.name/dedup/exact/> .
 @prefix ns2:	<http://purl.org/goodrelations/v1#> .
 @prefix ns3:	<http://schema.org/> .
-ns1:b1	rdf:type	ns2:BusinessEntity ;
-	ns3:name	"One" ;
-	ns3:vatID	"123456789" .
-ns1:b2	rdf:type	ns2:BusinessEntity ;
-	ns3:name	"Two" ;
+ns1:b3	rdf:type	ns2:BusinessEntity ;
+	ns3:name	"Three" ;
 	ns3:vatID	"123456789" .

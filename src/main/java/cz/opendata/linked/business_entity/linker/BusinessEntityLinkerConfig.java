@@ -23,12 +23,13 @@ public class BusinessEntityLinkerConfig extends DPUConfigObjectBase {
         identSelectionOptions.add("/gr:taxID");
     }
 
-    private String orgSelectionA;
-    private String orgSelectionB;
+    private String orgSelectionA = orgSelectionOptions.get(0);
+    private String orgSelectionB = orgSelectionOptions.get(0);
 
-    private String identSelectionA;
-    private String identSelectionB;
-    private Double confidenceCutoff;
+    private String identSelectionA = identSelectionOptions.get(0);
+    private String identSelectionB = identSelectionOptions.get(0);
+    private Double confidenceCutoff = 1.0;
+    private int numberOfSources = 1;
 
     public BusinessEntityLinkerConfig() {
     }
@@ -71,5 +72,13 @@ public class BusinessEntityLinkerConfig extends DPUConfigObjectBase {
 
     public void setConfidenceCutoff(double confidenceCutoff) {
         this.confidenceCutoff = confidenceCutoff;
+    }
+
+    public int getNumberOfSources() {
+        return numberOfSources;
+    }
+
+    public void setNumberOfSources(int numberOfSources) {
+        this.numberOfSources = numberOfSources;
     }
 }
