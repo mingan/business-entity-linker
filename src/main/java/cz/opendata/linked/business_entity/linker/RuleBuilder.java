@@ -123,17 +123,47 @@ public class RuleBuilder {
 
         Element compare = rule.createElement("Compare");
         compare.setAttribute("required", "true");
-        compare.setAttribute("metric", "equality");
-        compare.setAttribute("threshold", "0.0");
+        if (config.isExact()) {
+            compare.setAttribute("metric", "equality");
+            compare.setAttribute("threshold", "0.0");
 
-        Element pathA = rule.createElement("Input");
-        pathA.setAttribute("path", "?a/" + config.getIdentSelectionA());
-        Element pathB = rule.createElement("Input");
-        pathB.setAttribute("path", "?b/" + config.getIdentSelectionB());
+            Element pathA = rule.createElement("Input");
+            Element pathB = rule.createElement("Input");
+            pathA.setAttribute("path", "?a/" + config.getIdentSelectionA());
+            pathB.setAttribute("path", "?b/" + config.getIdentSelectionB());
 
-        compare.appendChild(pathA);
-        compare.appendChild(pathB);
+            compare.appendChild(pathA);
+            compare.appendChild(pathB);
+        } else {
+            compare.setAttribute("metric", "levenshtein");
+            compare.setAttribute("threshold", config.getNameThreshold().toString());
+
+            Element pathA = rule.createElement("Input");
+            Element pathB = rule.createElement("Input");
+            pathA.setAttribute("path", "?a/" + config.getNameSelectionA());
+            pathB.setAttribute("path", "?b/" + config.getNameSelectionB());
+
+            Element[] transformations = createNameTransformations();
+            compare.appendChild(transformations[0]);
+            transformations[0].appendChild(transformations[1]);
+            transformations[1].appendChild(pathA);
+
+            transformations = createNameTransformations();
+            compare.appendChild(transformations[0]);
+            transformations[0].appendChild(transformations[1]);
+            transformations[1].appendChild(pathB);
+        }
         root.appendChild(compare);
+    }
+
+    private Element[] createNameTransformations() {
+        Element lowercase = rule.createElement("TransformInput");
+        lowercase.setAttribute("function", "lowerCase");
+
+        Element removeSpecialChars = rule.createElement("TransformInput");
+        removeSpecialChars.setAttribute("function", "removeSpecialChars");
+
+        return new Element[]{lowercase, removeSpecialChars};
     }
 
     private Element buildIneqalityAggregation(Element root) {
