@@ -181,7 +181,6 @@ public class RuleBuilderTest {
         config.setExact(false);
         builder = new RuleBuilder(config, workingDirPath);
 
-        printXml(builder.getRule());
         Node linkageRule = builder.getRule().getElementsByTagName("LinkageRule").item(0);
         NodeList components = linkageRule.getChildNodes();
         assertThat(components.getLength(), is(1));

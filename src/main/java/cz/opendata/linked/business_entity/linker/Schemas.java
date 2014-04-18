@@ -16,6 +16,8 @@ public class Schemas {
         schemas.put("skos", "http://www.w3.org/2004/02/skos/core#");
         schemas.put("schema", "http://schema.org/");
         schemas.put("owl", "http://www.w3.org/2002/07/owl#");
+        schemas.put("org", "http://www.w3.org/ns/org#");
+        schemas.put("dcterms", "http://purl.org/dc/terms/#");
     }
 
     public static Map<String, String> getSchemas() {
