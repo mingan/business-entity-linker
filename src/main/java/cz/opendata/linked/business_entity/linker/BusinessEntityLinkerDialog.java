@@ -37,12 +37,28 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
 
 	@Override
 	public void setConfiguration(BusinessEntityLinkerConfig config) throws ConfigException {
-		// TODO : load configuration from function parameter into dialog
+		checkboxSelfLink.setValue(config.getNumberOfSources() == 1);
+        identA.setValue(config.getIdentSelectionA());
+		identB.setValue(config.getIdentSelectionB());
+        nameA.setValue(config.getNameSelectionA());
+        nameB.setValue(config.getNameSelectionB());
+        nameThreshold.setValue(config.getNameThreshold() * 100);
+        blocks.setValue(new Double(config.getBlocking()));
+        cutoff.setValue(config.getConfidenceCutoff());
 	}
 
 	@Override
 	public BusinessEntityLinkerConfig getConfiguration() throws ConfigException {
 		BusinessEntityLinkerConfig config = new BusinessEntityLinkerConfig();
+
+        config.setExact(checkboxSelfLink.getValue());
+        config.setIdentSelectionA(identA.getValue().toString());
+        config.setIdentSelectionB(identB.getValue().toString());
+        config.setNameSelectionA(nameA.getValue().toString());
+        config.setNameSelectionB(nameB.getValue().toString());
+        config.setNameThreshold(nameThreshold.getValue() / 100);
+        config.setBlocking(blocks.getValue().intValue());
+        config.setConfidenceCutoff(cutoff.getValue());
 
         return config;
 	}
@@ -88,6 +104,8 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
     private void buildIdentSelection() {
         identA = new ComboBox();
         identB = new ComboBox();
+        identA.setWidth(100, Unit.PERCENTAGE);
+        identB.setWidth(100, Unit.PERCENTAGE);
 
         identA.setNullSelectionAllowed(false);
         identB.setNullSelectionAllowed(false);

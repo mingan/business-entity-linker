@@ -17,7 +17,7 @@ public class BusinessEntityLinkerConfig extends DPUConfigObjectBase {
 
     private Double nameThreshold = 0.75;
 
-    private Double confidenceCutoff = 1.0;
+    private Double confidenceCutoff = 0.9;
     private int numberOfSources = 1;
     private boolean exact = true;
     private int blocking = 1000;

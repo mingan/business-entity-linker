@@ -51,10 +51,13 @@ public class BusinessEntityLinker extends ConfigurableBase<BusinessEntityLinkerC
 
 	@Override
 	public AbstractConfigDialog<BusinessEntityLinkerConfig> getConfigurationDialog() {
-		return new BusinessEntityLinkerDialog();
-	}
+        config.setNumberOfSources(1);
+        if (targetData != null) {
+            config.setNumberOfSources(2);
+        }
+        return new BusinessEntityLinkerDialog();
+    }
 
-        // TODO 2: Implement the method execute being called when the DPU is launched
 	@Override
 	public void execute(DPUContext context)
 			throws DPUException,
