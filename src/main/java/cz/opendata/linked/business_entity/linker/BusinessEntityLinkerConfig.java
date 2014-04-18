@@ -2,44 +2,18 @@ package cz.opendata.linked.business_entity.linker;
 
 import cz.cuni.mff.xrg.odcs.commons.module.config.DPUConfigObjectBase;
 
-import java.util.LinkedList;
-import java.util.List;
-
 public class BusinessEntityLinkerConfig extends DPUConfigObjectBase {
 
-    private static final List<String> orgSelectionOptions = new LinkedList<>();
-    static {
-        orgSelectionOptions.add("schema:Organization");
-        orgSelectionOptions.add("gr:BusinessEntity");
-        orgSelectionOptions.add("org:Organization");
-    }
 
-    private static final List<String> identSelectionOptions = new LinkedList<>();
-    static {
-        identSelectionOptions.add("adms:identifier/skos:notation");
-        identSelectionOptions.add("schema:vatID");
-        identSelectionOptions.add("schema:taxID");
-        identSelectionOptions.add("gr:vatID");
-        identSelectionOptions.add("gr:taxID");
-    }
 
-    private static final List<String> nameSelectionOptions = new LinkedList<>();
-    static {
-        nameSelectionOptions.add("schema:name");
-        nameSelectionOptions.add("gr:legalName");
-        nameSelectionOptions.add("gr:name");
-        nameSelectionOptions.add("dcterms:title");
-        nameSelectionOptions.add("rdfs:label");
-    }
+    private String orgSelectionA = OptionsLists.organiztaion.get(0);
+    private String orgSelectionB = OptionsLists.organiztaion.get(0);
 
-    private String orgSelectionA = orgSelectionOptions.get(0);
-    private String orgSelectionB = orgSelectionOptions.get(0);
+    private String identSelectionA = OptionsLists.ident.get(0);
+    private String identSelectionB = OptionsLists.ident.get(0);
 
-    private String identSelectionA = identSelectionOptions.get(0);
-    private String identSelectionB = identSelectionOptions.get(0);
-
-    private String nameSelectionA = nameSelectionOptions.get(0);
-    private String nameSelectionB = nameSelectionOptions.get(0);
+    private String nameSelectionA = OptionsLists.name.get(0);
+    private String nameSelectionB = OptionsLists.name.get(0);
 
     private Double nameThreshold = 0.75;
 
@@ -48,8 +22,8 @@ public class BusinessEntityLinkerConfig extends DPUConfigObjectBase {
     private boolean exact = true;
     private int blocking = 1000;
 
-    private static final int blockingTopLimit = 65535;
-    private static final int blockingBottomLimit = 0;
+    static final int blockingTopLimit = 65535;
+    static final int blockingBottomLimit = 0;
 
     public BusinessEntityLinkerConfig() {
     }

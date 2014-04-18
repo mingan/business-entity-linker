@@ -12,7 +12,6 @@ import cz.cuni.mff.xrg.odcs.commons.web.AbstractConfigDialog;
 import cz.cuni.mff.xrg.odcs.commons.web.ConfigDialogProvider;
 import cz.cuni.mff.xrg.odcs.rdf.enums.RDFFormatType;
 import cz.cuni.mff.xrg.odcs.rdf.interfaces.RDFDataUnit;
-import de.fuberlin.wiwiss.silk.Silk;
 import org.openrdf.rio.RDFFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,7 +82,7 @@ public class BusinessEntityLinker extends ConfigurableBase<BusinessEntityLinkerC
         }
 
         // run Silk
-        Silk.executeFile(new File(path), null, 1, true);
+        //Silk.executeFile(new File(path), null, 1, true);
 
         // load results to output data units
         File confirmed = new File(workingDirPath + File.separator + "confirmed.n3");

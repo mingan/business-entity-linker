@@ -36,17 +36,13 @@
 	</build>
 
 	<dependencies>
+		<!--
+		// Should be compiled or provided as an OSGi bundle but seems impossible to undeclared dependencies
 		<dependency>
 			<groupId>de.fuberlin.wiwiss.silk</groupId>
 			<artifactId>silk-singlemachine</artifactId>
-			<version>2.6.0-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-log4j12</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
+			<version>2.6.0</version>
+		</dependency>-->
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>dataunit-rdf-impl</artifactId>
@@ -55,5 +51,6 @@
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
+
 
 </project> 
