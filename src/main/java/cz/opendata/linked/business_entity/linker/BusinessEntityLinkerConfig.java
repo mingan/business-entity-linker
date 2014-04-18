@@ -46,6 +46,10 @@ public class BusinessEntityLinkerConfig extends DPUConfigObjectBase {
     private Double confidenceCutoff = 1.0;
     private int numberOfSources = 1;
     private boolean exact = true;
+    private int blocking = 1000;
+
+    private static final int blockingTopLimit = 65535;
+    private static final int blockingBottomLimit = 0;
 
     public BusinessEntityLinkerConfig() {
     }
@@ -128,5 +132,15 @@ public class BusinessEntityLinkerConfig extends DPUConfigObjectBase {
 
     public void setNameThreshold(double nameThreshold) {
         this.nameThreshold = nameThreshold;
+    }
+
+    public int getBlocking() {
+        return blocking;
+    }
+
+    public void setBlocking(int blocking) {
+        if (blockingBottomLimit <= blocking && blocking <= blockingTopLimit) {
+            this.blocking = blocking;
+        }
     }
 }

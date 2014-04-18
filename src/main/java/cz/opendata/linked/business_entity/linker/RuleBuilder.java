@@ -31,6 +31,7 @@ public class RuleBuilder {
         buildDataSources();
         buildSourceDataset();
         buildTargetDataset();
+        buildBlocking();
         buildComparison();
         buildOutputs();
     }
@@ -113,6 +114,15 @@ public class RuleBuilder {
         Element restrictTo = rule.createElement("RestrictTo");
         restrictTo.setTextContent("?b rdf:type " + config.getOrgSelectionB());
         dataset.appendChild(restrictTo);
+    }
+
+    private void buildBlocking() {
+        if (config.getBlocking() > 0) {
+            Element blocking = (Element) rule.getElementsByTagName("Blocking").item(0);
+
+            blocking.setAttribute("enabled", "true");
+            blocking.setAttribute("blocks", String.valueOf(config.getBlocking()));
+        }
     }
 
     private void buildComparison() {

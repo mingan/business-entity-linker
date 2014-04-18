@@ -6,6 +6,8 @@
 		<DataSource id="sourceA" type="file"></DataSource>
 	</DataSources>
 
+	<Blocking enabled="false" />
+
 	<Interlinks>
 		<Interlink id="business_entity">
 			<LinkType>owl:sameAs</LinkType>

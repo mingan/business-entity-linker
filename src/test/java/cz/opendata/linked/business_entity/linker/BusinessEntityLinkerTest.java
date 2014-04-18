@@ -11,6 +11,8 @@ import org.openrdf.rio.RDFFormat;
 
 import java.util.Random;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -37,6 +39,14 @@ public class BusinessEntityLinkerTest {
         config.setIdentSelectionA("schema:vatID");
         config.setIdentSelectionB("schema:vatID");
         config.setConfidenceCutoff(1.0);
+    }
+
+    @Test
+    public void testMaxBlocking() throws Exception {
+        int blocking = 1000;
+        config.setBlocking(blocking);
+        config.setBlocking(1000000000);
+        assertThat(config.getBlocking(), is(blocking));
     }
 
     @Test

@@ -201,6 +201,20 @@ public class RuleBuilderTest {
         assertTrue(compare.getElementsByTagName("Input").getLength() == 2);
     }
 
+    @Test
+    public void testBlocking() throws Exception {
+        Integer limit = 65535;
+        config.setBlocking(limit);
+        builder = new RuleBuilder(config, workingDirPath);
+
+        Element blocking = (Element) builder.getRule().getElementsByTagName("Blocking").item(0);
+        assertTrue(blocking != null);
+        assertThat(blocking.getAttribute("blocks"), is(limit.toString()));
+        assertThat(blocking.getAttribute("enabled"), is("true"));
+    }
+
+
+
     private void printXml(Document doc) {
         StringWriter w = new StringWriter();
         StreamResult r = new StreamResult(w);
