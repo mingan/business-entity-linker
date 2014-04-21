@@ -117,7 +117,7 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
     }
 
     private void buildInputTab() {
-        inputLayout = new GridLayout(6, 2);
+        inputLayout = new GridLayout(2, 7);
         inputLayout.setMargin(false);
         inputLayout.setSpacing(true);
         inputLayout.setWidth("100%");
@@ -126,19 +126,23 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         inputLayout.setColumnExpandRatio(0, 0.5f);
         inputLayout.setColumnExpandRatio(1, 0.5f);
 
+
+        Label gap = new Label();
+        gap.setHeight("1em");
+        inputLayout.addComponent(gap, 0, 0, 1, 0);
         buildNumberOfSources();
         Component[] labels = createColumnLabels();
-        inputLayout.addComponent(labels[0], 0, 1);
-        inputLayout.addComponent(labels[1], 1, 1);
+        inputLayout.addComponent(labels[0], 0, 2);
+        inputLayout.addComponent(labels[1], 1, 2);
 
         tabSheet.addTab(inputLayout, "Input");
     }
 
     private void buildNumberOfSources() {
-        checkboxSelfLink = new CheckBox("Links are generated within one dataset");
-        checkboxSelfLink.setDescription("When checked link configuration reads only from the first dataset and links it against itself. As a side product pairs of links A-B and B-A are generated.");
+        checkboxSelfLink = new CheckBox("Links are generated within one datase");
+        checkboxSelfLink.setDescription("When checked, link configuration reads only from the source dataset and links it against itself. As a side product pairs of links A-B and B-A are generated.");
         checkboxSelfLink.setHeight("20px");
-        inputLayout.addComponent(checkboxSelfLink, 0, 0, 1, 0);
+        inputLayout.addComponent(checkboxSelfLink, 0, 1, 1, 1);
     }
 
     private Component[] createColumnLabels() {
@@ -151,21 +155,26 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
     }
 
     private void buildOptionsTab() {
-        optionsLayout = new GridLayout(3, 7);
+        optionsLayout = new GridLayout(3, 8);
         optionsLayout.setMargin(false);
         optionsLayout.setSpacing(true);
         optionsLayout.setWidth("100%");
         optionsLayout.setHeight("100%");
 
-        optionsLayout.setColumnExpandRatio(0, 0.36f);
         optionsLayout.setColumnExpandRatio(1, 0.28f);
+        optionsLayout.setColumnExpandRatio(0, 0.36f);
         optionsLayout.setColumnExpandRatio(2, 0.36f);
 
-        Component[] labels = createColumnLabels();
-        optionsLayout.addComponent(labels[0], 0, 0);
-        optionsLayout.addComponent(labels[1], 2, 0);
+
+        Label gap = new Label();
+        gap.setHeight("1em");
+        optionsLayout.addComponent(gap, 0, 0, 2, 0);
 
         buildComparisonMode();
+
+        Component[] labels = createColumnLabels();
+        optionsLayout.addComponent(labels[0], 1, 2);
+        optionsLayout.addComponent(labels[1], 2, 2);
         buildIdentSelection();
         buildNameSelection();
         buildServiceFields();
@@ -246,18 +255,15 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         }
 
         labelIdent = new Label("Identifier");
-        optionsLayout.addComponent(identA, 0, 2);
-        optionsLayout.addComponent(labelIdent, 1, 2);
-        optionsLayout.addComponent(identB, 2, 2);
+        optionsLayout.addComponent(labelIdent, 0, 3);
+        optionsLayout.addComponent(identA, 1, 3);
+        optionsLayout.addComponent(identB, 2, 3);
 
         activeOnIdent.add(identA);
         activeOnIdent.add(identB);
     }
 
     private void buildNameSelection() {
-//        Label gap = new Label();
-//        gap.setHeight("1em");
-//        mainLayout.addComponent(gap, 0, 3, 2, 3);
 
         nameA = new ComboBox();
         nameB = new ComboBox();
@@ -273,17 +279,17 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         }
 
         labelName = new Label("Name");
-        optionsLayout.addComponent(nameA, 0, 3);
-        optionsLayout.addComponent(labelName, 1, 3);
-        optionsLayout.addComponent(nameB, 2, 3);
+        optionsLayout.addComponent(labelName, 0, 4);
+        optionsLayout.addComponent(nameA, 1, 4);
+        optionsLayout.addComponent(nameB, 2, 4);
 
         nameThresholdLabel = new Label("Threshold");
-        optionsLayout.addComponent(nameThresholdLabel, 0, 4);
+        optionsLayout.addComponent(nameThresholdLabel, 0, 5);
 
         nameThreshold = new Slider(0.0, 100.0, 1);
         nameThreshold.setDescription("Names are compared using Levenshtein distance. Threshold specifies how much the names can differ in percent. Names are transformed to lowercase and all special characters are removed prior to comparison.");
         nameThreshold.setWidth(100, Unit.PERCENTAGE);
-        optionsLayout.addComponent(nameThreshold, 1, 4, 2, 4);
+        optionsLayout.addComponent(nameThreshold, 1, 5, 2, 5);
 
         activeOnName.add(nameA);
         activeOnName.add(nameB);
@@ -292,22 +298,22 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
 
     private void buildServiceFields() {
         cutoffLabel = new Label("Cutoff");
-        optionsLayout.addComponent(cutoffLabel, 0, 5);
+        optionsLayout.addComponent(cutoffLabel, 0, 6);
 
         cutoff = new Slider(0.0, 1.0, 1);
         cutoff.setDescription("Generated links with normalized score from interval (0, 1> above cutoff limit are considered correct. The rest are placed in secondary output data unit requiring manual verification.");
         cutoff.setWidth(100, Unit.PERCENTAGE);
-        optionsLayout.addComponent(cutoff, 1, 5, 2, 5);
+        optionsLayout.addComponent(cutoff, 1, 6, 2, 6);
 
         activeOnName.add(cutoff);
 
         blockingLabel = new Label("Blocks");
-        optionsLayout.addComponent(blockingLabel, 0, 6);
+        optionsLayout.addComponent(blockingLabel, 0, 7);
 
         blocks = new Slider(BusinessEntityLinkerConfig.blockingBottomLimit, BusinessEntityLinkerConfig.blockingTopLimit);
         blocks.setDescription("Controls blocking function of silk. 0 turns blocking off. Higher values may reduce recall but are necessary for reasonable execution time for larger datasets.");
         blocks.setWidth(100, Unit.PERCENTAGE);
-        optionsLayout.addComponent(blocks, 1, 6, 2, 6);
+        optionsLayout.addComponent(blocks, 1, 7, 2, 7);
     }
 
 }
