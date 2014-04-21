@@ -4,8 +4,6 @@ import com.vaadin.data.Property;
 import com.vaadin.ui.*;
 import cz.cuni.mff.xrg.odcs.commons.configuration.ConfigException;
 import cz.cuni.mff.xrg.odcs.commons.module.dialog.BaseConfigDialog;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -16,7 +14,6 @@ import java.util.Set;
  * configuration.
  */
 public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityLinkerConfig> {
-    private static final Logger log = LoggerFactory.getLogger(BusinessEntityLinkerDialog.class);
     public static final String APPROXIMATE = "Approximate match based on name";
 
     private GridLayout mainLayout;
@@ -233,23 +230,23 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
     }
 
     private void buildServiceFields() {
-        blockingLabel = new Label("Blocks");
-        mainLayout.addComponent(blockingLabel, 0, 5);
-
-        blocks = new Slider(BusinessEntityLinkerConfig.blockingBottomLimit, BusinessEntityLinkerConfig.blockingTopLimit);
-        blocks.setDescription("Controls blocking function of silk. 0 turns blocking off. Higher values may reduce recall but are necessary for reasonable execution time for larger datasets.");
-        blocks.setWidth(100, Unit.PERCENTAGE);
-        mainLayout.addComponent(blocks, 1, 5, 2, 5);
-
         cutoffLabel = new Label("Cutoff");
-        mainLayout.addComponent(cutoffLabel, 0, 6);
+        mainLayout.addComponent(cutoffLabel, 0, 5);
 
         cutoff = new Slider(0.0, 1.0, 1);
         cutoff.setDescription("Generated links with normalized score from interval (0, 1> above cutoff limit are considered correct. The rest are placed in secondary output data unit requiring manual verification.");
         cutoff.setWidth(100, Unit.PERCENTAGE);
-        mainLayout.addComponent(cutoff, 1, 6, 2, 6);
+        mainLayout.addComponent(cutoff, 1, 5, 2, 5);
 
         activeOnName.add(cutoff);
+
+        blockingLabel = new Label("Blocks");
+        mainLayout.addComponent(blockingLabel, 0, 6);
+
+        blocks = new Slider(BusinessEntityLinkerConfig.blockingBottomLimit, BusinessEntityLinkerConfig.blockingTopLimit);
+        blocks.setDescription("Controls blocking function of silk. 0 turns blocking off. Higher values may reduce recall but are necessary for reasonable execution time for larger datasets.");
+        blocks.setWidth(100, Unit.PERCENTAGE);
+        mainLayout.addComponent(blocks, 1, 6, 2, 6);
     }
 
 }
