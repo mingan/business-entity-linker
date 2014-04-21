@@ -96,7 +96,7 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
 
         config.setSelfLink(checkboxSelfLink.getValue());
         config.setExact(isExact());
-        config.setIdentSelectionA(identA.getValue().toString());
+        config.setIdentSelectionA(normalizeSelection(identA.getValue()));
         config.setIdentSelectionB(identB.getValue().toString());
         config.setNameSelectionA(nameA.getValue().toString());
         config.setNameSelectionB(nameB.getValue().toString());
@@ -121,6 +121,14 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
 
         return config;
 	}
+
+    private String normalizeSelection(Object val) {
+        if (val == null) {
+            return null;
+        } else {
+            return val.toString();
+        }
+    }
 
     private boolean isExact() {
         return comparisonMode.getValue().toString().equals(EQUALITY);
@@ -183,6 +191,28 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         checkboxSelfLink = new CheckBox("Links are generated within one dataset");
         checkboxSelfLink.setDescription("When checked, link configuration reads only from the source dataset and links it against itself. As a side product pairs of links A-B and B-A are generated.");
         checkboxSelfLink.setHeight("20px");
+
+        checkboxSelfLink.addValueChangeListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent event) {
+                if (checkboxSelfLink.getValue()) {
+                    sparqlB.setEnabled(false);
+                    enableSetOfFields(activeSparqlB, false);
+                    identB.setEnabled(false);
+                    nameB.setEnabled(false);
+                } else {
+                    sparqlB.setEnabled(true);
+                    if (!sparqlB.getValue()) {
+                        enableSetOfFields(activeSparqlB, true);
+                    }
+                    if (comparisonMode.getValue() != null && comparisonMode.getValue().equals(EQUALITY)) {
+                        identB.setEnabled(true);
+                    } else {
+                        nameB.setEnabled(true);
+                    }
+                }
+            }
+        });
         inputLayout.addComponent(checkboxSelfLink, 0, 0, 2, 0);
     }
 
@@ -375,11 +405,11 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
             @Override
             public void valueChange(Property.ValueChangeEvent event) {
                 if (event.getProperty().toString().equals(EQUALITY)) {
-                    enableIdent(false);
-                    enableName(true);
-                } else {
                     enableIdent(true);
                     enableName(false);
+                } else {
+                    enableIdent(false);
+                    enableName(true);
                 }
             }
         });
@@ -387,11 +417,27 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
     }
 
     private void enableIdent(boolean enabled) {
-        enableSetOfFields(activeOnIdent, enabled);
+        if (enabled == false || !checkboxSelfLink.getValue()) {
+            enableSetOfFields(activeOnIdent, enabled);
+        } else {
+            identA.setEnabled(enabled);
+            if (!checkboxSelfLink.getValue()) {
+                identB.setEnabled(enabled);
+            }
+        }
     }
 
     private void enableName(boolean enabled) {
-        enableSetOfFields(activeOnName, enabled);
+        if (enabled == false || !checkboxSelfLink.getValue()) {
+            enableSetOfFields(activeOnName, enabled);
+        } else {
+            nameA.setEnabled(enabled);
+            nameThreshold.setEnabled(enabled);
+            cutoff.setEnabled(enabled);
+            if (!checkboxSelfLink.getValue()) {
+                nameB.setEnabled(enabled);
+            }
+        }
     }
 
     private void buildIdentSelection() {
