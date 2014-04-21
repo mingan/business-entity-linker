@@ -2,6 +2,7 @@ package cz.opendata.linked.business_entity.linker;
 
 import com.vaadin.data.Property;
 import com.vaadin.ui.*;
+import com.vaadin.ui.themes.Reindeer;
 import cz.cuni.mff.xrg.odcs.commons.configuration.ConfigException;
 import cz.cuni.mff.xrg.odcs.commons.module.dialog.BaseConfigDialog;
 
@@ -17,6 +18,9 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
     public static final String APPROXIMATE = "Approximate match based on name";
 
     private GridLayout mainLayout;
+
+    private TabSheet tabSheet;
+
     private CheckBox checkboxSelfLink;
     private OptionGroup comparisonMode;
     private ComboBox identA;
@@ -36,6 +40,9 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
     private Set<Component> activeOnName = new HashSet<>();
 
     final String EQUALITY = "Equality match based on identifier";
+    private GridLayout inputLayout;
+    private GridLayout optionsLayout;
+    private VerticalLayout javaConfigLayout;
 
     public BusinessEntityLinkerDialog() {
 		super(BusinessEntityLinkerConfig.class);
@@ -88,34 +95,88 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
 
 
     private void buildMainLayout() {
-        // top-level component properties
         setWidth("100%");
         setHeight("100%");
 
-        // common part: create layout
-        mainLayout = new GridLayout(3, 8);
+        mainLayout = new GridLayout(1, 1);
         mainLayout.setImmediate(false);
         mainLayout.setWidth("100%");
         mainLayout.setHeight("100%");
-        mainLayout.setMargin(false);
-        mainLayout.setSpacing(true);
 
-        mainLayout.setColumnExpandRatio(0, 0.36f);
-        mainLayout.setColumnExpandRatio(1, 0.28f);
-        mainLayout.setColumnExpandRatio(2, 0.36f);
+        tabSheet = new TabSheet();
+        tabSheet.setImmediate(true);
+        tabSheet.setWidth("100%");
+        tabSheet.setHeight("100%");
+
+        buildInputTab();
+        buildOptionsTab();
+        buildJavaConfigTab();
+
+        mainLayout.addComponent(tabSheet, 0, 0);
+        mainLayout.setComponentAlignment(tabSheet, Alignment.TOP_LEFT);
+    }
+
+    private void buildInputTab() {
+        inputLayout = new GridLayout(6, 2);
+        inputLayout.setMargin(false);
+        inputLayout.setSpacing(true);
+        inputLayout.setWidth("100%");
+        inputLayout.setHeight("100%");
+
+        inputLayout.setColumnExpandRatio(0, 0.5f);
+        inputLayout.setColumnExpandRatio(1, 0.5f);
 
         buildNumberOfSources();
-        buildComparisonMode();
-        buildIdentSelection();
-        buildNameSelection();
-        buildServiceFields();
+        Component[] labels = createColumnLabels();
+        inputLayout.addComponent(labels[0], 0, 1);
+        inputLayout.addComponent(labels[1], 1, 1);
+
+        tabSheet.addTab(inputLayout, "Input");
     }
 
     private void buildNumberOfSources() {
         checkboxSelfLink = new CheckBox("Links are generated within one dataset");
         checkboxSelfLink.setDescription("When checked link configuration reads only from the first dataset and links it against itself. As a side product pairs of links A-B and B-A are generated.");
         checkboxSelfLink.setHeight("20px");
-        mainLayout.addComponent(checkboxSelfLink, 0, 0, 2, 0);
+        inputLayout.addComponent(checkboxSelfLink, 0, 0, 1, 0);
+    }
+
+    private Component[] createColumnLabels() {
+        Label source = new Label("Source");
+        source.addStyleName(Reindeer.LABEL_H1);
+        Label target = new Label("Target");
+        target.addStyleName(Reindeer.LABEL_H1);
+
+        return new Label[]{source, target};
+    }
+
+    private void buildOptionsTab() {
+        optionsLayout = new GridLayout(3, 7);
+        optionsLayout.setMargin(false);
+        optionsLayout.setSpacing(true);
+        optionsLayout.setWidth("100%");
+        optionsLayout.setHeight("100%");
+
+        optionsLayout.setColumnExpandRatio(0, 0.36f);
+        optionsLayout.setColumnExpandRatio(1, 0.28f);
+        optionsLayout.setColumnExpandRatio(2, 0.36f);
+
+        Component[] labels = createColumnLabels();
+        optionsLayout.addComponent(labels[0], 0, 0);
+        optionsLayout.addComponent(labels[1], 2, 0);
+
+        buildComparisonMode();
+        buildIdentSelection();
+        buildNameSelection();
+        buildServiceFields();
+
+        tabSheet.addTab(optionsLayout, "Linkage Rule");
+    }
+
+    private void buildJavaConfigTab() {
+        javaConfigLayout = new VerticalLayout();
+
+        tabSheet.addTab(javaConfigLayout, "Java");
     }
 
     private void buildComparisonMode() {
@@ -135,7 +196,7 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
                 }
             }
         });
-        mainLayout.addComponent(comparisonMode, 0, 1, 2, 1);
+        optionsLayout.addComponent(comparisonMode, 0, 1, 2, 1);
     }
 
     private void disableIdent() {
@@ -185,9 +246,9 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         }
 
         labelIdent = new Label("Identifier");
-        mainLayout.addComponent(identA, 0, 2);
-        mainLayout.addComponent(labelIdent, 1, 2);
-        mainLayout.addComponent(identB, 2, 2);
+        optionsLayout.addComponent(identA, 0, 2);
+        optionsLayout.addComponent(labelIdent, 1, 2);
+        optionsLayout.addComponent(identB, 2, 2);
 
         activeOnIdent.add(identA);
         activeOnIdent.add(identB);
@@ -212,17 +273,17 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         }
 
         labelName = new Label("Name");
-        mainLayout.addComponent(nameA, 0, 3);
-        mainLayout.addComponent(labelName, 1, 3);
-        mainLayout.addComponent(nameB, 2, 3);
+        optionsLayout.addComponent(nameA, 0, 3);
+        optionsLayout.addComponent(labelName, 1, 3);
+        optionsLayout.addComponent(nameB, 2, 3);
 
         nameThresholdLabel = new Label("Threshold");
-        mainLayout.addComponent(nameThresholdLabel, 0, 4);
+        optionsLayout.addComponent(nameThresholdLabel, 0, 4);
 
         nameThreshold = new Slider(0.0, 100.0, 1);
         nameThreshold.setDescription("Names are compared using Levenshtein distance. Threshold specifies how much the names can differ in percent. Names are transformed to lowercase and all special characters are removed prior to comparison.");
         nameThreshold.setWidth(100, Unit.PERCENTAGE);
-        mainLayout.addComponent(nameThreshold, 1, 4, 2, 4);
+        optionsLayout.addComponent(nameThreshold, 1, 4, 2, 4);
 
         activeOnName.add(nameA);
         activeOnName.add(nameB);
@@ -231,22 +292,22 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
 
     private void buildServiceFields() {
         cutoffLabel = new Label("Cutoff");
-        mainLayout.addComponent(cutoffLabel, 0, 5);
+        optionsLayout.addComponent(cutoffLabel, 0, 5);
 
         cutoff = new Slider(0.0, 1.0, 1);
         cutoff.setDescription("Generated links with normalized score from interval (0, 1> above cutoff limit are considered correct. The rest are placed in secondary output data unit requiring manual verification.");
         cutoff.setWidth(100, Unit.PERCENTAGE);
-        mainLayout.addComponent(cutoff, 1, 5, 2, 5);
+        optionsLayout.addComponent(cutoff, 1, 5, 2, 5);
 
         activeOnName.add(cutoff);
 
         blockingLabel = new Label("Blocks");
-        mainLayout.addComponent(blockingLabel, 0, 6);
+        optionsLayout.addComponent(blockingLabel, 0, 6);
 
         blocks = new Slider(BusinessEntityLinkerConfig.blockingBottomLimit, BusinessEntityLinkerConfig.blockingTopLimit);
         blocks.setDescription("Controls blocking function of silk. 0 turns blocking off. Higher values may reduce recall but are necessary for reasonable execution time for larger datasets.");
         blocks.setWidth(100, Unit.PERCENTAGE);
-        mainLayout.addComponent(blocks, 1, 6, 2, 6);
+        optionsLayout.addComponent(blocks, 1, 6, 2, 6);
     }
 
 }
