@@ -196,8 +196,11 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
     }
 
     private void buildSourceSelection() {
+        String sparqlDesc = "Alternatively, you can specify SPARQL Endpoint, which is highly recommended for large datasets!";
         sparqlA = new CheckBox("Use input data unit as a source dataset");
+        sparqlA.setDescription(sparqlDesc);
         sparqlB = new CheckBox("Use input data unit as a target dataset");
+        sparqlB.setDescription(sparqlDesc);
 
         sparqlA.addValueChangeListener(new Property.ValueChangeListener() {
             @Override
@@ -237,6 +240,26 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         sparqlAEndpoint.setWidth("100%");
         sparqlBEndpoint = new TextField();
         sparqlBEndpoint.setWidth("100%");
+
+        sparqlAEndpoint.addValidator(new Validator() {
+            @Override
+            public void validate(Object o) throws InvalidValueException {
+                String v = sparqlAEndpoint.getValue();
+                if (!sparqlA.getValue() && (v == null || v.trim().equals(""))) {
+                    throw new InvalidValueException("Endpoint must be set when not using local input data unit");
+                }
+            }
+        });
+        sparqlBEndpoint.addValidator(new Validator() {
+            @Override
+            public void validate(Object o) throws InvalidValueException {
+                String v = sparqlBEndpoint.getValue();
+                if (!sparqlB.getValue() && (v == null || v.trim().equals(""))) {
+                    throw new InvalidValueException("Endpoint must be set when not using local input data unit");
+                }
+            }
+        });
+
         inputLayout.addComponent(endpointLabel, 0, 3);
         inputLayout.addComponent(sparqlAEndpoint, 1, 3);
         inputLayout.addComponent(sparqlBEndpoint, 2, 3);
