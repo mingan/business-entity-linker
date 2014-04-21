@@ -23,9 +23,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
+import java.io.*;
 
 @AsTransformer
 public class BusinessEntityLinker extends ConfigurableBase<BusinessEntityLinkerConfig>
@@ -84,8 +82,17 @@ public class BusinessEntityLinker extends ConfigurableBase<BusinessEntityLinkerC
             writeSilkConfigToFile(builder.getRule(), path);
         }
 
-        // run Silk
-        //Silk.executeFile(new File(path), null, 1, true);
+        String memoryOption = "";
+        if (config.getJavaMemory() > 0) {
+            memoryOption = "-Xmx" + config.getJavaMemory() + "m";
+        }
+        try {
+            Process proc = Runtime.getRuntime().exec("java -DconfigFile=\"" + path + "\" " + memoryOption + " -jar " + config.getSilkPath());
+            printProcessOutput(proc);
+        } catch (IOException e) {
+            log.error(e.getLocalizedMessage());
+            context.sendMessage(MessageType.ERROR, "Problem executing Silk: " + e.getMessage());
+        }
 
         // load results to output data units
         File confirmed = new File(workingDirPath + File.separator + "confirmed.n3");
@@ -95,17 +102,17 @@ public class BusinessEntityLinker extends ConfigurableBase<BusinessEntityLinkerC
         probableLinks.addFromFile(verify, RDFFormat.NTRIPLES);
 	}
 
-        private String getPathToConfig(DPUContext context) {
-            String path = null;
-            try {
-                path = context.getWorkingDir().getCanonicalPath() + "/silk_config.xml";
-            } catch (IOException e) {
-                log.error("Failed to access Silk configuration file for write");
-            }
-            return path;
+    private String getPathToConfig(DPUContext context) {
+        String path = null;
+        try {
+            path = context.getWorkingDir().getCanonicalPath() + "/silk_config.xml";
+        } catch (IOException e) {
+            log.error("Failed to access Silk configuration file for write");
         }
+        return path;
+    }
 
-        private void writeSilkConfigToFile(Document rule, String path) {
+    private void writeSilkConfigToFile(Document rule, String path) {
         try {
             File configFile = new File(path);
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -122,6 +129,30 @@ public class BusinessEntityLinker extends ConfigurableBase<BusinessEntityLinkerC
             log.error("Failed to transform generated configuration to file");
         } catch (TransformerException e) {
             log.error("Failed to transform generated configuration to file");
+        }
+    }
+
+    private static void printProcessOutput(Process process) {
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+            StringBuilder errors = new StringBuilder();
+            String line;
+            while ((line = in.readLine()) != null) {
+                errors.append(line);
+            }
+            log.warn(errors.toString());
+            in.close();
+
+            in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            StringBuilder notes = new StringBuilder();
+
+            while ((line = in.readLine()) != null) {
+                notes.append(line);
+            }
+            log.debug(notes.toString());
+            in.close();
+        } catch (Exception e) {
+            log.error(e.getLocalizedMessage());
         }
     }
 
