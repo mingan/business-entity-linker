@@ -43,6 +43,18 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
     private GridLayout inputLayout;
     private GridLayout optionsLayout;
     private VerticalLayout javaConfigLayout;
+    private TextField sparqlAEndpoint;
+    private TextField sparqlALogin;
+    private PasswordField sparqlAPassword;
+    private TextField sparqlAGraph;
+    private TextField sparqlBEndpoint;
+    private TextField sparqlBLogin;
+    private PasswordField sparqlBPassword;
+    private TextField sparqlBGraph;
+    private CheckBox sparqlA;
+    private CheckBox sparqlB;
+    private HashSet<Component> activeSparqlA;
+    private HashSet<Component> activeSparqlB;
 
     public BusinessEntityLinkerDialog() {
 		super(BusinessEntityLinkerConfig.class);
@@ -93,7 +105,6 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         }
     }
 
-
     private void buildMainLayout() {
         setWidth("100%");
         setHeight("100%");
@@ -117,32 +128,33 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
     }
 
     private void buildInputTab() {
-        inputLayout = new GridLayout(2, 7);
-        inputLayout.setMargin(false);
+        inputLayout = new GridLayout(3, 7);
+        inputLayout.setMargin(true);
         inputLayout.setSpacing(true);
         inputLayout.setWidth("100%");
         inputLayout.setHeight("100%");
 
-        inputLayout.setColumnExpandRatio(0, 0.5f);
-        inputLayout.setColumnExpandRatio(1, 0.5f);
+        inputLayout.setColumnExpandRatio(0, 0.2f);
+        inputLayout.setColumnExpandRatio(1, 0.4f);
+        inputLayout.setColumnExpandRatio(2, 0.4f);
 
 
-        Label gap = new Label();
-        gap.setHeight("1em");
-        inputLayout.addComponent(gap, 0, 0, 1, 0);
         buildNumberOfSources();
         Component[] labels = createColumnLabels();
-        inputLayout.addComponent(labels[0], 0, 2);
-        inputLayout.addComponent(labels[1], 1, 2);
+        inputLayout.addComponent(labels[0], 1, 1);
+        inputLayout.addComponent(labels[1], 2, 1);
+        buildSourceSelection();
+
+        buildSparqlInput();
 
         tabSheet.addTab(inputLayout, "Input");
     }
 
     private void buildNumberOfSources() {
-        checkboxSelfLink = new CheckBox("Links are generated within one datase");
+        checkboxSelfLink = new CheckBox("Links are generated within one dataset");
         checkboxSelfLink.setDescription("When checked, link configuration reads only from the source dataset and links it against itself. As a side product pairs of links A-B and B-A are generated.");
         checkboxSelfLink.setHeight("20px");
-        inputLayout.addComponent(checkboxSelfLink, 0, 1, 1, 1);
+        inputLayout.addComponent(checkboxSelfLink, 0, 0, 2, 0);
     }
 
     private Component[] createColumnLabels() {
@@ -154,9 +166,95 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         return new Label[]{source, target};
     }
 
+    private void buildSourceSelection() {
+        sparqlA = new CheckBox("Use input data unit as a source dataset");
+        sparqlB = new CheckBox("Use input data unit as a target dataset");
+
+        sparqlA.addValueChangeListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent event) {
+                enableSparqlA(sparqlA.getValue());
+            }
+        });
+        sparqlB.addValueChangeListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent event) {
+                enableSparqlB(sparqlB.getValue());
+            }
+        });
+
+        inputLayout.addComponent(sparqlA, 1, 2);
+        inputLayout.addComponent(sparqlB, 2, 2);
+    }
+
+    private void enableSparqlA(boolean enable) {
+        enableSetOfFields(activeSparqlA, enable);
+    }
+
+    private void enableSparqlB(boolean enable) {
+        enableSetOfFields(activeSparqlB, enable);
+    }
+
+    private void enableSetOfFields(Set<Component> set, boolean enabled) {
+        Iterator<Component> it = set.iterator();
+        while (it.hasNext()) {
+            it.next().setEnabled(enabled);
+        }
+    }
+
+    private void buildSparqlInput() {
+        Label endpointLabel = new Label("Endpoint URL");
+        sparqlAEndpoint = new TextField();
+        sparqlAEndpoint.setWidth("100%");
+        sparqlBEndpoint = new TextField();
+        sparqlBEndpoint.setWidth("100%");
+        inputLayout.addComponent(endpointLabel, 0, 3);
+        inputLayout.addComponent(sparqlAEndpoint, 1, 3);
+        inputLayout.addComponent(sparqlBEndpoint, 2, 3);
+        
+        Label loginLabel = new Label("Username");
+        sparqlALogin = new TextField();
+        sparqlALogin.setWidth("100%");
+        sparqlBLogin = new TextField();
+        sparqlBLogin.setWidth("100%");
+        inputLayout.addComponent(loginLabel, 0, 4);
+        inputLayout.addComponent(sparqlALogin, 1, 4);
+        inputLayout.addComponent(sparqlBLogin, 2, 4);
+        
+        Label passLabel = new Label("Password");
+        sparqlAPassword = new PasswordField();
+        sparqlAPassword.setWidth("100%");
+        sparqlBPassword = new PasswordField();
+        sparqlBPassword.setWidth("100%");
+        inputLayout.addComponent(passLabel, 0, 5);
+        inputLayout.addComponent(sparqlAPassword, 1, 5);
+        inputLayout.addComponent(sparqlBPassword, 2, 5);
+        
+        Label graphLabel = new Label("Graph");
+        sparqlAGraph = new TextField();
+        sparqlAGraph.setWidth("100%");
+        sparqlBGraph = new TextField();
+        sparqlBGraph.setWidth("100%");
+        inputLayout.addComponent(graphLabel, 0, 6);
+        inputLayout.addComponent(sparqlAGraph, 1, 6);
+        inputLayout.addComponent(sparqlBGraph, 2, 6);
+
+        activeSparqlA = new HashSet<>();
+        activeSparqlA.add(sparqlAEndpoint);
+        activeSparqlA.add(sparqlALogin);
+        activeSparqlA.add(sparqlAPassword);
+        activeSparqlA.add(sparqlAGraph);
+
+        activeSparqlB = new HashSet<>();
+        activeSparqlB.add(sparqlBEndpoint);
+        activeSparqlB.add(sparqlBLogin);
+        activeSparqlB.add(sparqlBPassword);
+        activeSparqlB.add(sparqlBGraph);
+    }
+
     private void buildOptionsTab() {
         optionsLayout = new GridLayout(3, 8);
-        optionsLayout.setMargin(false);
+        optionsLayout.setMargin(true);
         optionsLayout.setSpacing(true);
         optionsLayout.setWidth("100%");
         optionsLayout.setHeight("100%");
@@ -197,45 +295,23 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
             @Override
             public void valueChange(Property.ValueChangeEvent event) {
                 if (event.getProperty().toString().equals(EQUALITY)) {
-                    disableIdent();
-                    enableName();
+                    enableIdent(false);
+                    enableName(true);
                 } else {
-                    enableIdent();
-                    disableName();
+                    enableIdent(true);
+                    enableName(false);
                 }
             }
         });
         optionsLayout.addComponent(comparisonMode, 0, 1, 2, 1);
     }
 
-    private void disableIdent() {
-        enableIdent(false);
-    }
-
-    private void enableIdent() {
-        enableIdent(true);
-    }
-
     private void enableIdent(boolean enabled) {
-        Iterator<Component> it = activeOnIdent.iterator();
-        while (it.hasNext()) {
-            it.next().setEnabled(enabled);
-        }
-    }
-
-    private void disableName() {
-        enableName(false);
-    }
-
-    private void enableName() {
-        enableName(true);
+        enableSetOfFields(activeOnIdent, enabled);
     }
 
     private void enableName(boolean enabled) {
-        Iterator<Component> it = activeOnName.iterator();
-        while (it.hasNext()) {
-            it.next().setEnabled(enabled);
-        }
+        enableSetOfFields(activeOnName, enabled);
     }
 
     private void buildIdentSelection() {
@@ -267,6 +343,8 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
 
         nameA = new ComboBox();
         nameB = new ComboBox();
+        nameA.setWidth(100, Unit.PERCENTAGE);
+        nameB.setWidth(100, Unit.PERCENTAGE);
 
         nameA.setNullSelectionAllowed(false);
         nameB.setNullSelectionAllowed(false);
