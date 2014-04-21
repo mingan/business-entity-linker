@@ -76,6 +76,14 @@ public class BusinessEntityLinkerConfig extends DPUConfigObjectBase {
         this.numberOfSources = numberOfSources;
     }
 
+    public void setSelfLink(boolean selfLink) {
+        if (selfLink) {
+            setNumberOfSources(1);
+        } else {
+            setNumberOfSources(2);
+        }
+    }
+
     public String getNameSelectionA() {
         return nameSelectionA;
     }

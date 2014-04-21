@@ -1,16 +1,23 @@
 package cz.opendata.linked.business_entity.linker;
 
+import com.vaadin.data.Property;
 import com.vaadin.ui.*;
 import cz.cuni.mff.xrg.odcs.commons.configuration.ConfigException;
 import cz.cuni.mff.xrg.odcs.commons.module.dialog.BaseConfigDialog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  * DPU's configuration dialog. User can use this dialog to configure DPU
  * configuration.
  */
 public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityLinkerConfig> {
+    private static final Logger log = LoggerFactory.getLogger(BusinessEntityLinkerDialog.class);
+    public static final String APPROXIMATE = "Approximate match based on name";
 
     private GridLayout mainLayout;
     private CheckBox checkboxSelfLink;
@@ -28,6 +35,11 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
     private Label cutoffLabel;
     private Slider cutoff;
 
+    private Set<Component> activeOnIdent = new HashSet<>();
+    private Set<Component> activeOnName = new HashSet<>();
+
+    final String EQUALITY = "Equality match based on identifier";
+
     public BusinessEntityLinkerDialog() {
 		super(BusinessEntityLinkerConfig.class);
 
@@ -38,6 +50,7 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
 	@Override
 	public void setConfiguration(BusinessEntityLinkerConfig config) throws ConfigException {
 		checkboxSelfLink.setValue(config.getNumberOfSources() == 1);
+        setComparisonMode(config.isExact());
         identA.setValue(config.getIdentSelectionA());
 		identB.setValue(config.getIdentSelectionB());
         nameA.setValue(config.getNameSelectionA());
@@ -51,7 +64,8 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
 	public BusinessEntityLinkerConfig getConfiguration() throws ConfigException {
 		BusinessEntityLinkerConfig config = new BusinessEntityLinkerConfig();
 
-        config.setExact(checkboxSelfLink.getValue());
+        config.setSelfLink(checkboxSelfLink.getValue());
+        config.setExact(isExact());
         config.setIdentSelectionA(identA.getValue().toString());
         config.setIdentSelectionB(identB.getValue().toString());
         config.setNameSelectionA(nameA.getValue().toString());
@@ -62,6 +76,19 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
 
         return config;
 	}
+
+    private boolean isExact() {
+        return comparisonMode.getValue().toString().equals(EQUALITY);
+    }
+
+    private void setComparisonMode(boolean exact) {
+        if (exact) {
+            comparisonMode.setValue(EQUALITY);
+        } else {
+            comparisonMode.setValue(APPROXIMATE);
+        }
+    }
+
 
     private void buildMainLayout() {
         // top-level component properties
@@ -96,9 +123,52 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
 
     private void buildComparisonMode() {
         comparisonMode = new OptionGroup("Comparison mode");
-        comparisonMode.addItem("Equality match based on identifier");
-        comparisonMode.addItem("Approximate match based on name");
+        comparisonMode.addItem(EQUALITY);
+        comparisonMode.addItem(APPROXIMATE);
+
+        comparisonMode.addValueChangeListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent event) {
+                if (event.getProperty().toString().equals(EQUALITY)) {
+                    disableIdent();
+                    enableName();
+                } else {
+                    enableIdent();
+                    disableName();
+                }
+            }
+        });
         mainLayout.addComponent(comparisonMode, 0, 1, 2, 1);
+    }
+
+    private void disableIdent() {
+        enableIdent(false);
+    }
+
+    private void enableIdent() {
+        enableIdent(true);
+    }
+
+    private void enableIdent(boolean enabled) {
+        Iterator<Component> it = activeOnIdent.iterator();
+        while (it.hasNext()) {
+            it.next().setEnabled(enabled);
+        }
+    }
+
+    private void disableName() {
+        enableName(false);
+    }
+
+    private void enableName() {
+        enableName(true);
+    }
+
+    private void enableName(boolean enabled) {
+        Iterator<Component> it = activeOnName.iterator();
+        while (it.hasNext()) {
+            it.next().setEnabled(enabled);
+        }
     }
 
     private void buildIdentSelection() {
@@ -121,6 +191,9 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         mainLayout.addComponent(identA, 0, 2);
         mainLayout.addComponent(labelIdent, 1, 2);
         mainLayout.addComponent(identB, 2, 2);
+
+        activeOnIdent.add(identA);
+        activeOnIdent.add(identB);
     }
 
     private void buildNameSelection() {
@@ -153,6 +226,10 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         nameThreshold.setDescription("Names are compared using Levenshtein distance. Threshold specifies how much the names can differ in percent. Names are transformed to lowercase and all special characters are removed prior to comparison.");
         nameThreshold.setWidth(100, Unit.PERCENTAGE);
         mainLayout.addComponent(nameThreshold, 1, 4, 2, 4);
+
+        activeOnName.add(nameA);
+        activeOnName.add(nameB);
+        activeOnName.add(nameThreshold);
     }
 
     private void buildServiceFields() {
@@ -171,6 +248,8 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         cutoff.setDescription("Generated links with normalized score from interval (0, 1> above cutoff limit are considered correct. The rest are placed in secondary output data unit requiring manual verification.");
         cutoff.setWidth(100, Unit.PERCENTAGE);
         mainLayout.addComponent(cutoff, 1, 6, 2, 6);
+
+        activeOnName.add(cutoff);
     }
 
 }
