@@ -74,6 +74,18 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         nameThreshold.setValue(config.getNameThreshold() * 100);
         blocks.setValue(new Double(config.getBlocking()));
         cutoff.setValue(config.getConfidenceCutoff());
+        
+        sparqlA.setValue(!config.isSparqlA());
+        sparqlAEndpoint.setValue(config.getSparqlAEndpoint());
+        sparqlALogin.setValue(config.getSparqlALogin());
+        sparqlAPassword.setValue(config.getSparqlAPassword());
+        sparqlAGraph.setValue(config.getSparqlAGraph());
+
+        sparqlB.setValue(!config.isSparqlB());
+        sparqlBEndpoint.setValue(config.getSparqlBEndpoint());
+        sparqlBLogin.setValue(config.getSparqlBLogin());
+        sparqlBPassword.setValue(config.getSparqlBPassword());
+        sparqlBGraph.setValue(config.getSparqlBGraph());
 	}
 
 	@Override
@@ -89,6 +101,18 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         config.setNameThreshold(nameThreshold.getValue() / 100);
         config.setBlocking(blocks.getValue().intValue());
         config.setConfidenceCutoff(cutoff.getValue());
+
+        config.setSparqlA(!sparqlA.getValue());
+        config.setSparqlAEndpoint(sparqlAEndpoint.getValue());
+        config.setSparqlALogin(sparqlALogin.getValue());
+        config.setSparqlAPassword(sparqlAPassword.getValue());
+        config.setSparqlAGraph(sparqlAGraph.getValue());
+
+        config.setSparqlB(!sparqlB.getValue());
+        config.setSparqlBEndpoint(sparqlBEndpoint.getValue());
+        config.setSparqlBLogin(sparqlBLogin.getValue());
+        config.setSparqlBPassword(sparqlBPassword.getValue());
+        config.setSparqlBGraph(sparqlBGraph.getValue());
 
         return config;
 	}
@@ -173,13 +197,13 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         sparqlA.addValueChangeListener(new Property.ValueChangeListener() {
             @Override
             public void valueChange(Property.ValueChangeEvent event) {
-                enableSparqlA(sparqlA.getValue());
+                enableSparqlA(!sparqlA.getValue());
             }
         });
         sparqlB.addValueChangeListener(new Property.ValueChangeListener() {
             @Override
             public void valueChange(Property.ValueChangeEvent event) {
-                enableSparqlB(sparqlB.getValue());
+                enableSparqlB(!sparqlB.getValue());
             }
         });
 

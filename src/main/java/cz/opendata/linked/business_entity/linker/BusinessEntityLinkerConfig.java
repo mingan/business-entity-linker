@@ -4,8 +4,18 @@ import cz.cuni.mff.xrg.odcs.commons.module.config.DPUConfigObjectBase;
 
 public class BusinessEntityLinkerConfig extends DPUConfigObjectBase {
 
-
-
+    private boolean sparqlA = false;
+    private boolean sparqlB = false;
+    
+    private String sparqlAEndpoint = "";
+    private String sparqlALogin = "";
+    private String sparqlAPassword = "";
+    private String sparqlAGraph = "";
+    private String sparqlBEndpoint = "";
+    private String sparqlBLogin = "";
+    private String sparqlBPassword = "";
+    private String sparqlBGraph = "";
+    
     private String orgSelectionA = OptionsLists.organiztaion.get(0);
     private String orgSelectionB = OptionsLists.organiztaion.get(0);
 
@@ -124,5 +134,85 @@ public class BusinessEntityLinkerConfig extends DPUConfigObjectBase {
         if (blockingBottomLimit <= blocking && blocking <= blockingTopLimit) {
             this.blocking = blocking;
         }
+    }
+
+    public boolean isSparqlA() {
+        return sparqlA;
+    }
+
+    public void setSparqlA(boolean sparqlA) {
+        this.sparqlA = sparqlA;
+    }
+
+    public boolean isSparqlB() {
+        return sparqlB;
+    }
+
+    public void setSparqlB(boolean sparqlB) {
+        this.sparqlB = sparqlB;
+    }
+
+    public String getSparqlAEndpoint() {
+        return sparqlAEndpoint;
+    }
+
+    public void setSparqlAEndpoint(String sparqlAEndpoint) {
+        this.sparqlAEndpoint = sparqlAEndpoint;
+    }
+
+    public String getSparqlALogin() {
+        return sparqlALogin;
+    }
+
+    public void setSparqlALogin(String sparqlALogin) {
+        this.sparqlALogin = sparqlALogin;
+    }
+
+    public String getSparqlAPassword() {
+        return sparqlAPassword;
+    }
+
+    public void setSparqlAPassword(String sparqlAPassword) {
+        this.sparqlAPassword = sparqlAPassword;
+    }
+
+    public String getSparqlAGraph() {
+        return sparqlAGraph;
+    }
+
+    public void setSparqlAGraph(String sparqlAGraph) {
+        this.sparqlAGraph = sparqlAGraph;
+    }
+
+    public String getSparqlBEndpoint() {
+        return sparqlBEndpoint;
+    }
+
+    public void setSparqlBEndpoint(String sparqlBEndpoint) {
+        this.sparqlBEndpoint = sparqlBEndpoint;
+    }
+
+    public String getSparqlBLogin() {
+        return sparqlBLogin;
+    }
+
+    public void setSparqlBLogin(String sparqlBLogin) {
+        this.sparqlBLogin = sparqlBLogin;
+    }
+
+    public String getSparqlBPassword() {
+        return sparqlBPassword;
+    }
+
+    public void setSparqlBPassword(String sparqlBPassword) {
+        this.sparqlBPassword = sparqlBPassword;
+    }
+
+    public String getSparqlBGraph() {
+        return sparqlBGraph;
+    }
+
+    public void setSparqlBGraph(String sparqlBGraph) {
+        this.sparqlBGraph = sparqlBGraph;
     }
 }
