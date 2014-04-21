@@ -35,6 +35,9 @@ public class BusinessEntityLinkerConfig extends DPUConfigObjectBase {
     static final int blockingTopLimit = 65535;
     static final int blockingBottomLimit = 0;
 
+    private String silkPath = "";
+    private int javaMemory = 2048;
+
     public BusinessEntityLinkerConfig() {
     }
 
@@ -214,5 +217,21 @@ public class BusinessEntityLinkerConfig extends DPUConfigObjectBase {
 
     public void setSparqlBGraph(String sparqlBGraph) {
         this.sparqlBGraph = sparqlBGraph;
+    }
+
+    public int getJavaMemory() {
+        return javaMemory;
+    }
+
+    public void setJavaMemory(int javaMemory) {
+        this.javaMemory = javaMemory;
+    }
+
+    public String getSilkPath() {
+        return silkPath;
+    }
+
+    public void setSilkPath(String silkPath) {
+        this.silkPath = silkPath;
     }
 }

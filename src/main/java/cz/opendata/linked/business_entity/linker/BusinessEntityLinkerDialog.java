@@ -1,6 +1,7 @@
 package cz.opendata.linked.business_entity.linker;
 
 import com.vaadin.data.Property;
+import com.vaadin.data.Validator;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.Reindeer;
 import cz.cuni.mff.xrg.odcs.commons.configuration.ConfigException;
@@ -10,12 +11,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-/**
- * DPU's configuration dialog. User can use this dialog to configure DPU
- * configuration.
- */
 public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityLinkerConfig> {
-    public static final String APPROXIMATE = "Approximate match based on name";
+    private static final String APPROXIMATE = "Approximate match based on name";
+    private static final String EQUALITY = "Equality match based on identifier";
 
     private GridLayout mainLayout;
 
@@ -39,7 +37,6 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
     private Set<Component> activeOnIdent = new HashSet<>();
     private Set<Component> activeOnName = new HashSet<>();
 
-    final String EQUALITY = "Equality match based on identifier";
     private GridLayout inputLayout;
     private GridLayout optionsLayout;
     private VerticalLayout javaConfigLayout;
@@ -55,6 +52,8 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
     private CheckBox sparqlB;
     private HashSet<Component> activeSparqlA;
     private HashSet<Component> activeSparqlB;
+    private TextField silkPath;
+    private TextField javaMemory;
 
     public BusinessEntityLinkerDialog() {
 		super(BusinessEntityLinkerConfig.class);
@@ -86,6 +85,9 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         sparqlBLogin.setValue(config.getSparqlBLogin());
         sparqlBPassword.setValue(config.getSparqlBPassword());
         sparqlBGraph.setValue(config.getSparqlBGraph());
+
+        silkPath.setValue(config.getSilkPath());
+        javaMemory.setValue(String.valueOf(config.getJavaMemory()));
 	}
 
 	@Override
@@ -113,6 +115,9 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         config.setSparqlBLogin(sparqlBLogin.getValue());
         config.setSparqlBPassword(sparqlBPassword.getValue());
         config.setSparqlBGraph(sparqlBGraph.getValue());
+
+        config.setSilkPath(silkPath.getValue());
+        config.setJavaMemory(Integer.parseInt(javaMemory.getValue()));
 
         return config;
 	}
@@ -306,6 +311,34 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
 
     private void buildJavaConfigTab() {
         javaConfigLayout = new VerticalLayout();
+        javaConfigLayout.setMargin(true);
+        javaConfigLayout.setSpacing(true);
+        javaConfigLayout.setWidth("100%");
+        javaConfigLayout.setHeight("100%");
+
+        silkPath = new TextField("Path to Silk JAR");
+        silkPath.setWidth("100%");
+        silkPath.addValidator(new Validator() {
+            @Override
+            public void validate(Object o) throws InvalidValueException {
+                if (silkPath.getValue() == null || silkPath.getValue().trim().equals("")) {
+                    throw new InvalidValueException("Path to Silk must be specified");
+                }
+            }
+        });
+        javaConfigLayout.addComponent(silkPath);
+
+        javaMemory = new TextField("Memory limit for Silk (MB)");
+        javaMemory.setWidth("100%");
+        javaMemory.addValidator(new Validator() {
+            @Override
+            public void validate(Object o) throws InvalidValueException {
+                if (silkPath.getValue() == null || silkPath.getValue().trim().equals("")) {
+                    throw new InvalidValueException("Java memory limit in MB must be specified");
+                }
+            }
+        });
+        javaConfigLayout.addComponent(javaMemory);
 
         tabSheet.addTab(javaConfigLayout, "Java");
     }
