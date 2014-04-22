@@ -5,11 +5,11 @@ import java.util.List;
 
 public class OptionsLists {
 
-    static final List<String> organiztaion = new LinkedList<>();
+    static final List<String> organization = new LinkedList<>();
     static {
-        organiztaion.add("schema:Organization");
-        organiztaion.add("gr:BusinessEntity");
-        organiztaion.add("organiztaion:Organization");
+        organization.add("schema:Organization");
+        organization.add("gr:BusinessEntity");
+        organization.add("organization:Organization");
     }
 
     static final List<String> ident = new LinkedList<>();
@@ -23,6 +23,7 @@ public class OptionsLists {
 
     static final List<String> name = new LinkedList<>();
     static {
+        name.add("schema:legalName");
         name.add("schema:name");
         name.add("gr:legalName");
         name.add("gr:name");

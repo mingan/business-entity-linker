@@ -16,8 +16,8 @@ public class BusinessEntityLinkerConfig extends DPUConfigObjectBase {
     private String sparqlBPassword = "";
     private String sparqlBGraph = "";
     
-    private String orgSelectionA = OptionsLists.organiztaion.get(0);
-    private String orgSelectionB = OptionsLists.organiztaion.get(0);
+    private String orgSelectionA = OptionsLists.organization.get(0);
+    private String orgSelectionB = OptionsLists.organization.get(0);
 
     private String identSelectionA = OptionsLists.ident.get(0);
     private String identSelectionB = OptionsLists.ident.get(0);
@@ -32,8 +32,8 @@ public class BusinessEntityLinkerConfig extends DPUConfigObjectBase {
     private boolean exact = true;
     private int blocking = 1000;
 
-    static final int blockingTopLimit = 65535;
-    static final int blockingBottomLimit = 0;
+    public static final int BLOCKING_TOP_LIMIT = 65535;
+    public static final int BLOCKING_BOTTOM_LIMIT = 0;
 
     private String silkPath = "";
     private int javaMemory = 2048;
@@ -134,7 +134,7 @@ public class BusinessEntityLinkerConfig extends DPUConfigObjectBase {
     }
 
     public void setBlocking(int blocking) {
-        if (blockingBottomLimit <= blocking && blocking <= blockingTopLimit) {
+        if (BLOCKING_BOTTOM_LIMIT <= blocking && blocking <= BLOCKING_TOP_LIMIT) {
             this.blocking = blocking;
         }
     }
@@ -233,5 +233,20 @@ public class BusinessEntityLinkerConfig extends DPUConfigObjectBase {
 
     public void setSilkPath(String silkPath) {
         this.silkPath = silkPath;
+    }
+
+    public static boolean isBLOCKING_BOTTOM_LIMIT() {
+        return true;
+    }
+
+    public static boolean isBLOCKING_TOP_LIMIT() {
+        return true;
+    }
+
+
+    public static void setBLOCKING_BOTTOM_LIMIT() {
+    }
+
+    public static void setBLOCKING_TOP_LIMIT() {
     }
 }

@@ -514,7 +514,7 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         blockingLabel = new Label("Blocks");
         optionsLayout.addComponent(blockingLabel, 0, 7);
 
-        blocks = new Slider(BusinessEntityLinkerConfig.blockingBottomLimit, BusinessEntityLinkerConfig.blockingTopLimit);
+        blocks = new Slider(BusinessEntityLinkerConfig.BLOCKING_BOTTOM_LIMIT, BusinessEntityLinkerConfig.BLOCKING_TOP_LIMIT);
         blocks.setDescription("Controls blocking function of silk. 0 turns blocking off. Higher values may reduce recall but are necessary for reasonable execution time for larger datasets.");
         blocks.setWidth(100, Unit.PERCENTAGE);
         optionsLayout.addComponent(blocks, 1, 7, 2, 7);

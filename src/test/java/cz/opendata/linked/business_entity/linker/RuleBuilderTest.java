@@ -88,7 +88,7 @@ public class RuleBuilderTest {
         config.setSparqlALogin(login);
         String pass = "pass";
         config.setSparqlAPassword(pass);
-        
+
         builder = new RuleBuilder(config, workingDirPath);
 
         NodeList dataSources = builder.getRule().getElementsByTagName("DataSource");

@@ -30,16 +30,16 @@ public class BusinessEntityLinker extends ConfigurableBase<BusinessEntityLinkerC
 
     private static final Logger log = LoggerFactory.getLogger(BusinessEntityLinker.class);
 	
-	@InputDataUnit(name = "Source dataset")
+	@InputDataUnit(name = "source", optional = true)
 	public RDFDataUnit sourceData;
 
-    @InputDataUnit(name = "Target dataset", optional = true)
+    @InputDataUnit(name = "target", optional = true)
     public RDFDataUnit targetData;
 	
-	@OutputDataUnit(name = "Good links")
+	@OutputDataUnit(name = "good")
 	public RDFDataUnit goodLinks;
 
-    @OutputDataUnit(name = "Probable links")
+    @OutputDataUnit(name = "probable")
     public RDFDataUnit probableLinks;
 
     public BusinessEntityLinker() {
@@ -61,13 +61,15 @@ public class BusinessEntityLinker extends ConfigurableBase<BusinessEntityLinkerC
 				DataUnitException {
 
         String workingDirPath = context.getWorkingDir().getPath();
-        sourceData.loadToFile(new File(workingDirPath + File.separator + "source.nt"), RDFFormatType.NT);
-        config.setNumberOfSources(1);
+        if (sourceData != null) {
+            sourceData.loadToFile(new File(workingDirPath + File.separator + "source.nt"), RDFFormatType.NT);
+        }
 
         if (targetData != null) {
             targetData.loadToFile(new File(workingDirPath + File.separator + "target.nt"), RDFFormatType.NT);
             config.setNumberOfSources(2);
         }
+        config.setNumberOfSources(2);
         // build a linkage rule based on config
         RuleBuilder builder = new RuleBuilder(config, workingDirPath);
 
@@ -96,6 +98,7 @@ public class BusinessEntityLinker extends ConfigurableBase<BusinessEntityLinkerC
             context.sendMessage(MessageType.ERROR, "Execution of Silk was interupted. " + e.getMessage());
         }
         log.info("Silk finished");
+
 
         // load results to output data units
         File confirmed = new File(workingDirPath + File.separator + "confirmed.n3");

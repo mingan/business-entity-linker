@@ -53,22 +53,22 @@ public class BusinessEntityLinkerTest {
 
     @Test
     public void testExact() throws Exception {
-        sourceData = env.createRdfInputFromResource("Source dataset", false, "exact.ttl", RDFFormat.TURTLE);
+        sourceData = env.createRdfInputFromResource("source", false, "exact.ttl", RDFFormat.TURTLE);
         runTest("exact", 2, 0);
     }
 
     @Test
     public void testExactWithTwoDatasets() throws Exception {
-        sourceData = env.createRdfInputFromResource("Source dataset", false, "exact.ttl", RDFFormat.TURTLE);
-        targetData = env.createRdfInputFromResource("Target dataset", false, "exact2.ttl", RDFFormat.TURTLE);
+        sourceData = env.createRdfInputFromResource("source", false, "exact.ttl", RDFFormat.TURTLE);
+        targetData = env.createRdfInputFromResource("target", false, "exact2.ttl", RDFFormat.TURTLE);
         runTest("two exact", 2, 0);
     }
 
     private void runTest(String name, int exact, int probable) {
         try {
             linker.configureDirectly(config);
-            goodLinks = env.createRdfOutput("Good links", false);
-            probableLinks = env.createRdfOutput("Probable links", false);
+            goodLinks = env.createRdfOutput("good", false);
+            probableLinks = env.createRdfOutput("probable", false);
         } catch (Exception e) {
             e.printStackTrace();
             fail();
