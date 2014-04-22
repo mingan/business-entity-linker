@@ -1,7 +1,9 @@
 package cz.opendata.linked.business_entity.linker;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class OptionsLists {
 
@@ -10,6 +12,7 @@ public class OptionsLists {
         organization.add("schema:Organization");
         organization.add("gr:BusinessEntity");
         organization.add("organization:Organization");
+        organization.add("custom");
     }
 
     static final List<String> ident = new LinkedList<>();
@@ -29,5 +32,15 @@ public class OptionsLists {
         name.add("gr:name");
         name.add("dcterms:title");
         name.add("rdfs:label");
+    }
+
+    public static String getCustomOrg() {
+        return organization.get(OptionsLists.organization.size() - 1);
+    }
+
+    public static Set<String> getNonCustomOrgs() {
+        Set<String> out = new HashSet<>(organization);
+        out.remove(getCustomOrg());
+        return out;
     }
 }

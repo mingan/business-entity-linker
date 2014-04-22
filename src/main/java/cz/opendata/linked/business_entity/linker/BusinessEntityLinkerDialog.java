@@ -6,6 +6,7 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.themes.Reindeer;
 import cz.cuni.mff.xrg.odcs.commons.configuration.ConfigException;
 import cz.cuni.mff.xrg.odcs.commons.module.dialog.BaseConfigDialog;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -56,6 +57,9 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
     private TextField javaMemory;
     private ComboBox orgA;
     private ComboBox orgB;
+    private TextArea orgAcustom;
+    private TextArea orgBcustom;
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(BusinessEntityLinkerDialog.class);
 
     public BusinessEntityLinkerDialog() {
 		super(BusinessEntityLinkerConfig.class);
@@ -68,8 +72,21 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
 	public void setConfiguration(BusinessEntityLinkerConfig config) throws ConfigException {
 		checkboxSelfLink.setValue(config.getNumberOfSources() == 1);
         setComparisonMode(config.isExact());
-        orgA.setValue(config.getOrgSelectionA());
-        orgB.setValue(config.getOrgSelectionB());
+
+        log.warn("###- " + config.getOrgSelectionA());
+        if (orgIsFromList(config.getOrgSelectionA())) {
+            orgA.setValue(config.getOrgSelectionA());
+        } else {
+            log.warn("... a is custom back");
+            orgA.setValue(OptionsLists.getCustomOrg());
+            orgAcustom.setValue(config.getOrgSelectionA());
+        }
+        if (orgIsFromList(config.getOrgSelectionB())) {
+            orgB.setValue(config.getOrgSelectionB());
+        } else {
+            orgB.setValue(OptionsLists.getCustomOrg());
+            orgBcustom.setValue(config.getOrgSelectionB());
+        }
         identA.setValue(config.getIdentSelectionA());
 		identB.setValue(config.getIdentSelectionB());
         nameA.setValue(config.getNameSelectionA());
@@ -100,8 +117,18 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
 
         config.setSelfLink(checkboxSelfLink.getValue());
         config.setExact(isExact());
-        config.setOrgSelectionA(orgA.getValue().toString());
-        config.setOrgSelectionB(orgB.getValue().toString());
+        log.warn("###" + orgAcustom.getValue());
+        if (orgIsCustom(orgA.getValue())) {
+            log.warn("... a is custom");
+            config.setOrgSelectionA(orgAcustom.getValue());
+        } else {
+            config.setOrgSelectionA(orgA.getValue().toString());
+        }
+        if (orgIsCustom(orgB.getValue())) {
+            config.setOrgSelectionB(orgBcustom.getValue());
+        } else {
+            config.setOrgSelectionB(orgB.getValue().toString());
+        }
         config.setIdentSelectionA(normalizeSelection(identA.getValue()));
         config.setIdentSelectionB(identB.getValue().toString());
         config.setNameSelectionA(nameA.getValue().toString());
@@ -205,6 +232,7 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
                     sparqlB.setEnabled(false);
                     enableSetOfFields(activeSparqlB, false);
                     orgB.setEnabled(false);
+                    orgBcustom.setEnabled(false);
                     identB.setEnabled(false);
                     nameB.setEnabled(false);
                 } else {
@@ -213,6 +241,7 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
                         enableSetOfFields(activeSparqlB, true);
                     }
                     orgB.setEnabled(true);
+                    orgBcustom.setEnabled(orgIsCustom(orgB.getValue()));
                     if (comparisonMode.getValue() != null && comparisonMode.getValue().equals(EQUALITY)) {
                         identB.setEnabled(true);
                     } else {
@@ -343,7 +372,7 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
     }
 
     private void buildOptionsTab() {
-        optionsLayout = new GridLayout(3, 9);
+        optionsLayout = new GridLayout(3, 10);
         optionsLayout.setMargin(true);
         optionsLayout.setSpacing(true);
         optionsLayout.setWidth("100%");
@@ -464,11 +493,52 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
             orgA.addItem(option);
             orgB.addItem(option);
         }
+        orgA.addValueChangeListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                if (orgIsCustom(orgA.getValue())) {
+                    orgAcustom.setEnabled(true);
+                    orgAcustom.focus();
+                } else {
+                    orgAcustom.setEnabled(false);
+                }
+            }
+        });
+        orgB.addValueChangeListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
+                if (orgIsCustom(orgB.getValue())) {
+                    orgBcustom.setEnabled(true);
+                    orgBcustom.focus();
+                } else {
+                    orgBcustom.setEnabled(false);
+                }
+            }
+        });
 
         Label labelOrg = new Label("Resource type");
         optionsLayout.addComponent(labelOrg, 0, 3);
         optionsLayout.addComponent(orgA, 1, 3);
         optionsLayout.addComponent(orgB, 2, 3);
+
+        orgAcustom = new TextArea();
+        orgBcustom = new TextArea();
+        orgAcustom.setWidth(100, Unit.PERCENTAGE);
+        orgBcustom.setWidth(100, Unit.PERCENTAGE);
+        String customDesc = "Acts as a part of RestrictTo element in Silk configuration. First line must contain only value of rdf:type. All schemas but " + Schemas.asString() + " must be given complete.";
+        orgAcustom.setDescription(customDesc);
+        orgBcustom.setDescription(customDesc);
+
+        optionsLayout.addComponent(orgAcustom, 1, 4);
+        optionsLayout.addComponent(orgBcustom, 2, 4);
+    }
+
+    private boolean orgIsCustom(Object val) {
+        return val.toString().equals(OptionsLists.getCustomOrg());
+    }
+
+    private boolean orgIsFromList(Object val) {
+        return OptionsLists.getNonCustomOrgs().contains(val);
     }
 
     private void buildIdentSelection() {
@@ -488,9 +558,9 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         }
 
         labelIdent = new Label("Identifier");
-        optionsLayout.addComponent(labelIdent, 0, 4);
-        optionsLayout.addComponent(identA, 1, 4);
-        optionsLayout.addComponent(identB, 2, 4);
+        optionsLayout.addComponent(labelIdent, 0, 5);
+        optionsLayout.addComponent(identA, 1, 5);
+        optionsLayout.addComponent(identB, 2, 5);
 
         activeOnIdent.add(identA);
         activeOnIdent.add(identB);
@@ -514,17 +584,17 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         }
 
         labelName = new Label("Name");
-        optionsLayout.addComponent(labelName, 0, 5);
-        optionsLayout.addComponent(nameA, 1, 5);
-        optionsLayout.addComponent(nameB, 2, 5);
+        optionsLayout.addComponent(labelName, 0, 6);
+        optionsLayout.addComponent(nameA, 1, 6);
+        optionsLayout.addComponent(nameB, 2, 6);
 
         nameThresholdLabel = new Label("Threshold");
-        optionsLayout.addComponent(nameThresholdLabel, 0, 6);
+        optionsLayout.addComponent(nameThresholdLabel, 0, 7);
 
         nameThreshold = new Slider(0.0, 100.0, 1);
         nameThreshold.setDescription("Names are compared using Levenshtein distance. Threshold specifies how much the names can differ in percent. Names are transformed to lowercase and all special characters are removed prior to comparison.");
         nameThreshold.setWidth(100, Unit.PERCENTAGE);
-        optionsLayout.addComponent(nameThreshold, 1, 6, 2, 6);
+        optionsLayout.addComponent(nameThreshold, 1, 7, 2, 7);
 
         activeOnName.add(nameA);
         activeOnName.add(nameB);
@@ -533,22 +603,22 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
 
     private void buildServiceFields() {
         cutoffLabel = new Label("Cutoff");
-        optionsLayout.addComponent(cutoffLabel, 0, 7);
+        optionsLayout.addComponent(cutoffLabel, 0, 8);
 
         cutoff = new Slider(0.0, 1.0, 1);
         cutoff.setDescription("Generated links with normalized score from interval (0, 1> above cutoff limit are considered correct. The rest are placed in secondary output data unit requiring manual verification.");
         cutoff.setWidth(100, Unit.PERCENTAGE);
-        optionsLayout.addComponent(cutoff, 1, 7, 2, 7);
+        optionsLayout.addComponent(cutoff, 1, 8, 2, 8);
 
         activeOnName.add(cutoff);
 
         blockingLabel = new Label("Blocks");
-        optionsLayout.addComponent(blockingLabel, 0, 8);
+        optionsLayout.addComponent(blockingLabel, 0, 9);
 
         blocks = new Slider(BusinessEntityLinkerConfig.BLOCKING_BOTTOM_LIMIT, BusinessEntityLinkerConfig.BLOCKING_TOP_LIMIT);
         blocks.setDescription("Controls blocking function of silk. 0 turns blocking off. Higher values may reduce recall but are necessary for reasonable execution time for larger datasets.");
         blocks.setWidth(100, Unit.PERCENTAGE);
-        optionsLayout.addComponent(blocks, 1, 8, 2, 8);
+        optionsLayout.addComponent(blocks, 1, 9, 2, 9);
     }
 
 }
