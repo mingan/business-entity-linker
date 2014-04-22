@@ -51,19 +51,108 @@ public class RuleBuilderTest {
     }
 
     @Test
-    public void testOneDataSource() throws Exception {
+    public void testOneDataSourceFromDataUnit() throws Exception {
         builder = new RuleBuilder(config, workingDirPath);
-        assertTrue(builder.getRule().getElementsByTagName("DataSource").getLength() == 1);
+        NodeList dataSources = builder.getRule().getElementsByTagName("DataSource");
+        assertTrue(dataSources.getLength() == 1);
+        assertThat(((Element) dataSources.item(0)).getAttribute("type"), is("file"));
+        NodeList params = dataSources.item(0).getChildNodes();
+        assertThat(((Element) params.item(0)).getAttribute("name"), is("file"));
+        Element format = (Element) params.item(1);
+        assertThat(format.getAttribute("name"), is("format"));
+        assertThat(format.getAttribute("value"), is("N-TRIPLE"));
     }
 
     @Test
-    public void testTwoDataSources() throws Exception {
+    public void testTwoDataSourcesFromDataUnit() throws Exception {
         config.setNumberOfSources(2);
         builder = new RuleBuilder(config, workingDirPath);
-        assertTrue(builder.getRule().getElementsByTagName("DataSource").getLength() == 2);
-        String idA = ((Element) builder.getRule().getElementsByTagName("DataSource").item(0)).getAttribute("id");
-        String idB = ((Element) builder.getRule().getElementsByTagName("DataSource").item(1)).getAttribute("id");
+        NodeList dataSources = builder.getRule().getElementsByTagName("DataSource");
+        assertTrue(dataSources.getLength() == 2);
+        String idA = ((Element) dataSources.item(0)).getAttribute("id");
+        String idB = ((Element) dataSources.item(1)).getAttribute("id");
         assertThat(idA, not(is(idB)));
+        assertThat(((Element) dataSources.item(0)).getAttribute("type"), is("file"));
+        assertThat(((Element) dataSources.item(1)).getAttribute("type"), is("file"));
+    }
+
+    @Test
+    public void testOneDataSourceFromSparql() throws Exception {
+        config.setNumberOfSources(1);
+        config.setSparqlA(true);
+        String endpoint = "http://sparql";
+        config.setSparqlAEndpoint(endpoint);
+        String graph = "graph";
+        config.setSparqlAGraph(graph);
+        String login = "login";
+        config.setSparqlALogin(login);
+        String pass = "pass";
+        config.setSparqlAPassword(pass);
+        
+        builder = new RuleBuilder(config, workingDirPath);
+
+        NodeList dataSources = builder.getRule().getElementsByTagName("DataSource");
+        assertTrue(dataSources.getLength() == 1);
+        printXml(builder.getRule());
+        assertThat(((Element) dataSources.item(0)).getAttribute("type"), is("sparqlEndpoint"));
+        NodeList params = dataSources.item(0).getChildNodes();
+        paramTestAttributes(params.item(0), "endpointURI", endpoint);
+        paramTestAttributes(params.item(1), login, login);
+        paramTestAttributes(params.item(2), "password", pass);
+        paramTestAttributes(params.item(3), graph, graph);
+    }
+    private void paramTestAttributes(Node param, String name, String val) {
+        Element p = (Element) param;
+        assertThat(p.getAttribute("name"), is(name));
+        assertThat(p.getAttribute("value"), is(val));
+    }
+
+
+    @Test
+    public void testTwoDataSourcesSourceFromSparql() throws Exception {
+        config.setNumberOfSources(2);
+        config.setSparqlA(true);
+        config.setSparqlAEndpoint("http://sparql");
+        builder = new RuleBuilder(config, workingDirPath);
+        NodeList dataSources = builder.getRule().getElementsByTagName("DataSource");
+        assertTrue(dataSources.getLength() == 2);
+        String idA = ((Element) dataSources.item(0)).getAttribute("id");
+        String idB = ((Element) dataSources.item(1)).getAttribute("id");
+        assertThat(idA, not(is(idB)));
+        assertThat(((Element) dataSources.item(0)).getAttribute("type"), is("sparqlEndpoint"));
+        assertThat(((Element) dataSources.item(1)).getAttribute("type"), is("file"));
+    }
+
+    @Test
+    public void testTwoDataSourcesTargetFromSparql() throws Exception {
+        config.setNumberOfSources(2);
+        config.setSparqlB(true);
+        config.setSparqlBEndpoint("http://sparql2");
+        builder = new RuleBuilder(config, workingDirPath);
+        NodeList dataSources = builder.getRule().getElementsByTagName("DataSource");
+        assertTrue(dataSources.getLength() == 2);
+        String idA = ((Element) dataSources.item(0)).getAttribute("id");
+        String idB = ((Element) dataSources.item(1)).getAttribute("id");
+        assertThat(idA, not(is(idB)));
+        assertThat(((Element) dataSources.item(0)).getAttribute("type"), is("file"));
+        assertThat(((Element) dataSources.item(1)).getAttribute("type"), is("sparqlEndpoint"));
+    }
+
+    @Test
+    public void testTwoDataSourcesBothFromSparql() throws Exception {
+        config.setNumberOfSources(2);
+        config.setSparqlA(true);
+        config.setSparqlAEndpoint("http://sparql");
+        config.setSparqlB(true);
+        config.setSparqlBEndpoint("http://sparql2");
+        builder = new RuleBuilder(config, workingDirPath);
+        NodeList dataSources = builder.getRule().getElementsByTagName("DataSource");
+        assertTrue(dataSources.getLength() == 2);
+        String idA = ((Element) dataSources.item(0)).getAttribute("id");
+        String idB = ((Element) dataSources.item(1)).getAttribute("id");
+        assertThat(idA, not(is(idB)));
+        assertThat(((Element) dataSources.item(0)).getAttribute("type"), is("sparqlEndpoint"));
+        assertThat(((Element) dataSources.item(1)).getAttribute("type"), is("sparqlEndpoint"));
     }
 
     @Test

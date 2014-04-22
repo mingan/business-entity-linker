@@ -64,36 +64,78 @@ public class RuleBuilder {
     }
 
     private void buildDataSources() {
-        Element sourceA = (Element) rule.getElementsByTagName("DataSource").item(0);
+        Element sources = (Element) rule.getElementsByTagName("DataSources").item(0);
+        Element sourceA;
+        if (config.isSparqlA()) {
+            sourceA = createSparqlDataSource("sourceA", config.getSparqlAEndpoint(), config.getSparqlALogin(), config.getSparqlAPassword(), config.getSparqlAGraph());
+        } else {
+            sourceA = createFileDataSource("sourceA", "source.nt");
+        }
+
+        sources.appendChild(sourceA);
+
+        if (config.getNumberOfSources() == 2) {
+            Element sourceB;
+            if (config.isSparqlB()) {
+                sourceB = createSparqlDataSource("sourceB", config.getSparqlBEndpoint(), config.getSparqlBLogin(), config.getSparqlBPassword(), config.getSparqlBGraph());
+            } else {
+                sourceB = createFileDataSource("sourceB", "target.nt");
+            }
+            sources.appendChild(sourceB);
+        }
+    }
+
+    private Element createFileDataSource(String id, String filename) {
+        Element source = rule.createElement("DataSource");
+        source.setAttribute("id", id);
+        source.setAttribute("type", "file");
 
         Element file = rule.createElement("Param");
         file.setAttribute("name", "file");
-        file.setAttribute("value",  workingDirPath + File.separator + "source.nt");
+        file.setAttribute("value",  workingDirPath + File.separator + filename);
 
         Element format = rule.createElement("Param");
         format.setAttribute("name", "format");
         format.setAttribute("value", "N-TRIPLE");
 
-        sourceA.appendChild(file);
-        sourceA.appendChild(format);
+        source.appendChild(file);
+        source.appendChild(format);
 
-        if (config.getNumberOfSources() == 2) {
-            Element sourceB = rule.createElement("DataSource");
-            sourceB.setAttribute("id", "sourceB");
-            sourceB.setAttribute("type", "file");
+        return source;
+    }
 
-            file = rule.createElement("Param");
-            file.setAttribute("name", "file");
-            file.setAttribute("value",  workingDirPath + File.separator + "target.nt");
+    private Element createSparqlDataSource(String id, String endpoint, String login, String pass, String graph) {
+        Element source = rule.createElement("DataSource");
+        source.setAttribute("id", id);
+        source.setAttribute("type", "sparqlEndpoint");
+        
+        Element endpointParam = rule.createElement("Param");
+        endpointParam.setAttribute("name", "endpointURI");
+        endpointParam.setAttribute("value", endpoint);
+        source.appendChild(endpointParam);
 
-            format = rule.createElement("Param");
-            format.setAttribute("name", "format");
-            format.setAttribute("value", "N-TRIPLE");
-
-            sourceB.appendChild(file);
-            sourceB.appendChild(format);
-            sourceA.getParentNode().appendChild(sourceB);
+        if (login != null && !login.trim().equals("")) {
+            Element loginParam = rule.createElement("Param");
+            loginParam.setAttribute("name", "login");
+            loginParam.setAttribute("value", login);
+            source.appendChild(loginParam);
         }
+
+        if (pass != null && !pass.trim().equals("")) {
+            Element passParam = rule.createElement("Param");
+            passParam.setAttribute("name", "password");
+            passParam.setAttribute("value", pass);
+            source.appendChild(passParam);
+        }
+
+        if (graph != null && !graph.trim().equals("")) {
+            Element graphParam = rule.createElement("Param");
+            graphParam.setAttribute("name", "graph");
+            graphParam.setAttribute("value", graph);
+            source.appendChild(graphParam);
+        }
+
+        return source;
     }
 
     private void buildSourceDataset() {

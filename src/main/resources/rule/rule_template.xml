@@ -2,9 +2,7 @@
 <Silk>
 	<Prefixes></Prefixes>
 
-	<DataSources>
-		<DataSource id="sourceA" type="file"></DataSource>
-	</DataSources>
+	<DataSources></DataSources>
 
 	<Blocking enabled="false" />
 
