@@ -39,6 +39,8 @@ public class BusinessEntityLinkerTest {
         config.setIdentSelectionA("schema:vatID");
         config.setIdentSelectionB("schema:vatID");
         config.setConfidenceCutoff(1.0);
+        config.setSilkPath("C:\\Program Files\\Silk Workbench\\commandline\\silk.jar");
+        config.setJavaMemory(1024);
     }
 
     @Test

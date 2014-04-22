@@ -16,7 +16,6 @@ import org.openrdf.rio.RDFFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -69,8 +68,6 @@ public class BusinessEntityLinker extends ConfigurableBase<BusinessEntityLinkerC
             targetData.loadToFile(new File(workingDirPath + File.separator + "target.nt"), RDFFormatType.NT);
             config.setNumberOfSources(2);
         }
-        // extract data from data unit to file
-
         // build a linkage rule based on config
         RuleBuilder builder = new RuleBuilder(config, workingDirPath);
 
@@ -87,12 +84,18 @@ public class BusinessEntityLinker extends ConfigurableBase<BusinessEntityLinkerC
             memoryOption = "-Xmx" + config.getJavaMemory() + "m";
         }
         try {
-            Process proc = Runtime.getRuntime().exec("java -DconfigFile=\"" + path + "\" " + memoryOption + " -jar " + config.getSilkPath());
+            String command = "java -DconfigFile=\"" + path + "\" " + memoryOption + " -jar \"" + config.getSilkPath() + "\"";
+            Process proc = Runtime.getRuntime().exec(command);
             printProcessOutput(proc);
+            proc.waitFor();
         } catch (IOException e) {
             log.error(e.getLocalizedMessage());
             context.sendMessage(MessageType.ERROR, "Problem executing Silk: " + e.getMessage());
+        } catch (InterruptedException e) {
+            log.error(e.getLocalizedMessage());
+            context.sendMessage(MessageType.ERROR, "Execution of Silk was interupted. " + e.getMessage());
         }
+        log.info("Silk finished");
 
         // load results to output data units
         File confirmed = new File(workingDirPath + File.separator + "confirmed.n3");
@@ -100,6 +103,7 @@ public class BusinessEntityLinker extends ConfigurableBase<BusinessEntityLinkerC
 
         File verify = new File(workingDirPath + File.separator + "verify.n3");
         probableLinks.addFromFile(verify, RDFFormat.NTRIPLES);
+
 	}
 
     private String getPathToConfig(DPUContext context) {
