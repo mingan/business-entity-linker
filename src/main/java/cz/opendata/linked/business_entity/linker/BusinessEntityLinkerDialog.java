@@ -54,6 +54,8 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
     private HashSet<Component> activeSparqlB;
     private TextField silkPath;
     private TextField javaMemory;
+    private ComboBox orgA;
+    private ComboBox orgB;
 
     public BusinessEntityLinkerDialog() {
 		super(BusinessEntityLinkerConfig.class);
@@ -66,6 +68,8 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
 	public void setConfiguration(BusinessEntityLinkerConfig config) throws ConfigException {
 		checkboxSelfLink.setValue(config.getNumberOfSources() == 1);
         setComparisonMode(config.isExact());
+        orgA.setValue(config.getOrgSelectionA());
+        orgB.setValue(config.getOrgSelectionB());
         identA.setValue(config.getIdentSelectionA());
 		identB.setValue(config.getIdentSelectionB());
         nameA.setValue(config.getNameSelectionA());
@@ -96,6 +100,8 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
 
         config.setSelfLink(checkboxSelfLink.getValue());
         config.setExact(isExact());
+        config.setOrgSelectionA(orgA.getValue().toString());
+        config.setOrgSelectionB(orgB.getValue().toString());
         config.setIdentSelectionA(normalizeSelection(identA.getValue()));
         config.setIdentSelectionB(identB.getValue().toString());
         config.setNameSelectionA(nameA.getValue().toString());
@@ -171,9 +177,9 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         inputLayout.setWidth("100%");
         inputLayout.setHeight("100%");
 
-        inputLayout.setColumnExpandRatio(0, 0.2f);
-        inputLayout.setColumnExpandRatio(1, 0.4f);
-        inputLayout.setColumnExpandRatio(2, 0.4f);
+        inputLayout.setColumnExpandRatio(0, 0.3f);
+        inputLayout.setColumnExpandRatio(1, 0.35f);
+        inputLayout.setColumnExpandRatio(2, 0.35f);
 
 
         buildNumberOfSources();
@@ -198,6 +204,7 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
                 if (checkboxSelfLink.getValue()) {
                     sparqlB.setEnabled(false);
                     enableSetOfFields(activeSparqlB, false);
+                    orgB.setEnabled(false);
                     identB.setEnabled(false);
                     nameB.setEnabled(false);
                 } else {
@@ -205,6 +212,7 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
                     if (!sparqlB.getValue()) {
                         enableSetOfFields(activeSparqlB, true);
                     }
+                    orgB.setEnabled(true);
                     if (comparisonMode.getValue() != null && comparisonMode.getValue().equals(EQUALITY)) {
                         identB.setEnabled(true);
                     } else {
@@ -335,7 +343,7 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
     }
 
     private void buildOptionsTab() {
-        optionsLayout = new GridLayout(3, 8);
+        optionsLayout = new GridLayout(3, 9);
         optionsLayout.setMargin(true);
         optionsLayout.setSpacing(true);
         optionsLayout.setWidth("100%");
@@ -355,6 +363,7 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         Component[] labels = createColumnLabels();
         optionsLayout.addComponent(labels[0], 1, 2);
         optionsLayout.addComponent(labels[1], 2, 2);
+        buildResourceTypeSelection();
         buildIdentSelection();
         buildNameSelection();
         buildServiceFields();
@@ -439,6 +448,28 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
             }
         }
     }
+    
+    private void buildResourceTypeSelection() {
+        orgA = new ComboBox();
+        orgB = new ComboBox();
+        orgA.setWidth(100, Unit.PERCENTAGE);
+        orgB.setWidth(100, Unit.PERCENTAGE);
+
+        orgA.setNullSelectionAllowed(false);
+        orgB.setNullSelectionAllowed(false);
+
+        Iterator<String> it = OptionsLists.organization.iterator();
+        while(it.hasNext()) {
+            String option = it.next();
+            orgA.addItem(option);
+            orgB.addItem(option);
+        }
+
+        Label labelOrg = new Label("Resource type");
+        optionsLayout.addComponent(labelOrg, 0, 3);
+        optionsLayout.addComponent(orgA, 1, 3);
+        optionsLayout.addComponent(orgB, 2, 3);
+    }
 
     private void buildIdentSelection() {
         identA = new ComboBox();
@@ -457,9 +488,9 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         }
 
         labelIdent = new Label("Identifier");
-        optionsLayout.addComponent(labelIdent, 0, 3);
-        optionsLayout.addComponent(identA, 1, 3);
-        optionsLayout.addComponent(identB, 2, 3);
+        optionsLayout.addComponent(labelIdent, 0, 4);
+        optionsLayout.addComponent(identA, 1, 4);
+        optionsLayout.addComponent(identB, 2, 4);
 
         activeOnIdent.add(identA);
         activeOnIdent.add(identB);
@@ -483,17 +514,17 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         }
 
         labelName = new Label("Name");
-        optionsLayout.addComponent(labelName, 0, 4);
-        optionsLayout.addComponent(nameA, 1, 4);
-        optionsLayout.addComponent(nameB, 2, 4);
+        optionsLayout.addComponent(labelName, 0, 5);
+        optionsLayout.addComponent(nameA, 1, 5);
+        optionsLayout.addComponent(nameB, 2, 5);
 
         nameThresholdLabel = new Label("Threshold");
-        optionsLayout.addComponent(nameThresholdLabel, 0, 5);
+        optionsLayout.addComponent(nameThresholdLabel, 0, 6);
 
         nameThreshold = new Slider(0.0, 100.0, 1);
         nameThreshold.setDescription("Names are compared using Levenshtein distance. Threshold specifies how much the names can differ in percent. Names are transformed to lowercase and all special characters are removed prior to comparison.");
         nameThreshold.setWidth(100, Unit.PERCENTAGE);
-        optionsLayout.addComponent(nameThreshold, 1, 5, 2, 5);
+        optionsLayout.addComponent(nameThreshold, 1, 6, 2, 6);
 
         activeOnName.add(nameA);
         activeOnName.add(nameB);
@@ -502,22 +533,22 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
 
     private void buildServiceFields() {
         cutoffLabel = new Label("Cutoff");
-        optionsLayout.addComponent(cutoffLabel, 0, 6);
+        optionsLayout.addComponent(cutoffLabel, 0, 7);
 
         cutoff = new Slider(0.0, 1.0, 1);
         cutoff.setDescription("Generated links with normalized score from interval (0, 1> above cutoff limit are considered correct. The rest are placed in secondary output data unit requiring manual verification.");
         cutoff.setWidth(100, Unit.PERCENTAGE);
-        optionsLayout.addComponent(cutoff, 1, 6, 2, 6);
+        optionsLayout.addComponent(cutoff, 1, 7, 2, 7);
 
         activeOnName.add(cutoff);
 
         blockingLabel = new Label("Blocks");
-        optionsLayout.addComponent(blockingLabel, 0, 7);
+        optionsLayout.addComponent(blockingLabel, 0, 8);
 
         blocks = new Slider(BusinessEntityLinkerConfig.BLOCKING_BOTTOM_LIMIT, BusinessEntityLinkerConfig.BLOCKING_TOP_LIMIT);
         blocks.setDescription("Controls blocking function of silk. 0 turns blocking off. Higher values may reduce recall but are necessary for reasonable execution time for larger datasets.");
         blocks.setWidth(100, Unit.PERCENTAGE);
-        optionsLayout.addComponent(blocks, 1, 7, 2, 7);
+        optionsLayout.addComponent(blocks, 1, 8, 2, 8);
     }
 
 }
