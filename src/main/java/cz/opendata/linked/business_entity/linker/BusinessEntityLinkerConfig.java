@@ -27,6 +27,8 @@ public class BusinessEntityLinkerConfig extends DPUConfigObjectBase {
 
     private Double nameThreshold = 0.75;
 
+    private String metric = OptionsLists.metric.get(0);
+
     private Double confidenceCutoff = 0.9;
     private int numberOfSources = 1;
     private boolean exact = true;
@@ -248,5 +250,13 @@ public class BusinessEntityLinkerConfig extends DPUConfigObjectBase {
     }
 
     public static void setBLOCKING_TOP_LIMIT() {
+    }
+
+    public String getMetric() {
+        return metric;
+    }
+
+    public void setMetric(String metric) {
+        this.metric = metric;
     }
 }

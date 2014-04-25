@@ -6,7 +6,6 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.themes.Reindeer;
 import cz.cuni.mff.xrg.odcs.commons.configuration.ConfigException;
 import cz.cuni.mff.xrg.odcs.commons.module.dialog.BaseConfigDialog;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -57,9 +56,10 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
     private TextField javaMemory;
     private ComboBox orgA;
     private ComboBox orgB;
-    private TextArea orgAcustom;
-    private TextArea orgBcustom;
-    private static final org.slf4j.Logger log = LoggerFactory.getLogger(BusinessEntityLinkerDialog.class);
+    private TextArea orgACustom;
+    private TextArea orgBCustom;
+    private Label labelMetric;
+    private ComboBox metric;
 
     public BusinessEntityLinkerDialog() {
 		super(BusinessEntityLinkerConfig.class);
@@ -73,19 +73,17 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
 		checkboxSelfLink.setValue(config.getNumberOfSources() == 1);
         setComparisonMode(config.isExact());
 
-        log.warn("###- " + config.getOrgSelectionA());
         if (orgIsFromList(config.getOrgSelectionA())) {
             orgA.setValue(config.getOrgSelectionA());
         } else {
-            log.warn("... a is custom back");
             orgA.setValue(OptionsLists.getCustomOrg());
-            orgAcustom.setValue(config.getOrgSelectionA());
+            orgACustom.setValue(config.getOrgSelectionA());
         }
         if (orgIsFromList(config.getOrgSelectionB())) {
             orgB.setValue(config.getOrgSelectionB());
         } else {
             orgB.setValue(OptionsLists.getCustomOrg());
-            orgBcustom.setValue(config.getOrgSelectionB());
+            orgBCustom.setValue(config.getOrgSelectionB());
         }
         identA.setValue(config.getIdentSelectionA());
 		identB.setValue(config.getIdentSelectionB());
@@ -117,15 +115,13 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
 
         config.setSelfLink(checkboxSelfLink.getValue());
         config.setExact(isExact());
-        log.warn("###" + orgAcustom.getValue());
         if (orgIsCustom(orgA.getValue())) {
-            log.warn("... a is custom");
-            config.setOrgSelectionA(orgAcustom.getValue());
+            config.setOrgSelectionA(orgACustom.getValue());
         } else {
             config.setOrgSelectionA(orgA.getValue().toString());
         }
         if (orgIsCustom(orgB.getValue())) {
-            config.setOrgSelectionB(orgBcustom.getValue());
+            config.setOrgSelectionB(orgBCustom.getValue());
         } else {
             config.setOrgSelectionB(orgB.getValue().toString());
         }
@@ -232,7 +228,7 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
                     sparqlB.setEnabled(false);
                     enableSetOfFields(activeSparqlB, false);
                     orgB.setEnabled(false);
-                    orgBcustom.setEnabled(false);
+                    orgBCustom.setEnabled(false);
                     identB.setEnabled(false);
                     nameB.setEnabled(false);
                 } else {
@@ -241,7 +237,7 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
                         enableSetOfFields(activeSparqlB, true);
                     }
                     orgB.setEnabled(true);
-                    orgBcustom.setEnabled(orgIsCustom(orgB.getValue()));
+                    orgBCustom.setEnabled(orgIsCustom(orgB.getValue()));
                     if (comparisonMode.getValue() != null && comparisonMode.getValue().equals(EQUALITY)) {
                         identB.setEnabled(true);
                     } else {
@@ -372,7 +368,7 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
     }
 
     private void buildOptionsTab() {
-        optionsLayout = new GridLayout(3, 10);
+        optionsLayout = new GridLayout(3, 11);
         optionsLayout.setMargin(true);
         optionsLayout.setSpacing(true);
         optionsLayout.setWidth("100%");
@@ -469,6 +465,7 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         if (enabled == false || !checkboxSelfLink.getValue()) {
             enableSetOfFields(activeOnName, enabled);
         } else {
+            metric.setEnabled(enabled);
             nameA.setEnabled(enabled);
             nameThreshold.setEnabled(enabled);
             cutoff.setEnabled(enabled);
@@ -497,10 +494,10 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
             @Override
             public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
                 if (orgIsCustom(orgA.getValue())) {
-                    orgAcustom.setEnabled(true);
-                    orgAcustom.focus();
+                    orgACustom.setEnabled(true);
+                    orgACustom.focus();
                 } else {
-                    orgAcustom.setEnabled(false);
+                    orgACustom.setEnabled(false);
                 }
             }
         });
@@ -508,10 +505,10 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
             @Override
             public void valueChange(Property.ValueChangeEvent valueChangeEvent) {
                 if (orgIsCustom(orgB.getValue())) {
-                    orgBcustom.setEnabled(true);
-                    orgBcustom.focus();
+                    orgBCustom.setEnabled(true);
+                    orgBCustom.focus();
                 } else {
-                    orgBcustom.setEnabled(false);
+                    orgBCustom.setEnabled(false);
                 }
             }
         });
@@ -521,16 +518,16 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         optionsLayout.addComponent(orgA, 1, 3);
         optionsLayout.addComponent(orgB, 2, 3);
 
-        orgAcustom = new TextArea();
-        orgBcustom = new TextArea();
-        orgAcustom.setWidth(100, Unit.PERCENTAGE);
-        orgBcustom.setWidth(100, Unit.PERCENTAGE);
+        orgACustom = new TextArea();
+        orgBCustom = new TextArea();
+        orgACustom.setWidth(100, Unit.PERCENTAGE);
+        orgBCustom.setWidth(100, Unit.PERCENTAGE);
         String customDesc = "Acts as a part of RestrictTo element in Silk configuration. First line must contain only value of rdf:type. All schemas but " + Schemas.asString() + " must be given complete.";
-        orgAcustom.setDescription(customDesc);
-        orgBcustom.setDescription(customDesc);
+        orgACustom.setDescription(customDesc);
+        orgBCustom.setDescription(customDesc);
 
-        optionsLayout.addComponent(orgAcustom, 1, 4);
-        optionsLayout.addComponent(orgBcustom, 2, 4);
+        optionsLayout.addComponent(orgACustom, 1, 4);
+        optionsLayout.addComponent(orgBCustom, 2, 4);
     }
 
     private boolean orgIsCustom(Object val) {
@@ -588,37 +585,52 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         optionsLayout.addComponent(nameA, 1, 6);
         optionsLayout.addComponent(nameB, 2, 6);
 
+        metric = new ComboBox();
+        metric.setWidth(100, Unit.PERCENTAGE);
+        metric.setNullSelectionAllowed(false);
+
+        it = OptionsLists.metric.iterator();
+        while(it.hasNext()) {
+            String option = it.next();
+            metric.addItem(option);
+        }
+
+        labelMetric = new Label("Metric");
+        optionsLayout.addComponent(labelMetric, 0, 7);
+        optionsLayout.addComponent(metric, 1, 7, 2, 7);
+
         nameThresholdLabel = new Label("Threshold");
-        optionsLayout.addComponent(nameThresholdLabel, 0, 7);
+        optionsLayout.addComponent(nameThresholdLabel, 0, 8);
 
         nameThreshold = new Slider(0.0, 100.0, 1);
         nameThreshold.setDescription("Names are compared using Levenshtein distance. Threshold specifies how much the names can differ in percent. Names are transformed to lowercase and all special characters are removed prior to comparison.");
         nameThreshold.setWidth(100, Unit.PERCENTAGE);
-        optionsLayout.addComponent(nameThreshold, 1, 7, 2, 7);
+        optionsLayout.addComponent(nameThreshold, 1, 8, 2, 8);
 
         activeOnName.add(nameA);
         activeOnName.add(nameB);
         activeOnName.add(nameThreshold);
+        activeOnName.add(metric);
     }
 
     private void buildServiceFields() {
         cutoffLabel = new Label("Cutoff");
-        optionsLayout.addComponent(cutoffLabel, 0, 8);
+        optionsLayout.addComponent(cutoffLabel, 0, 9);
 
         cutoff = new Slider(0.0, 1.0, 1);
         cutoff.setDescription("Generated links with normalized score from interval (0, 1> above cutoff limit are considered correct. The rest are placed in secondary output data unit requiring manual verification.");
         cutoff.setWidth(100, Unit.PERCENTAGE);
-        optionsLayout.addComponent(cutoff, 1, 8, 2, 8);
+        optionsLayout.addComponent(cutoff, 1, 9, 2, 9);
 
         activeOnName.add(cutoff);
 
         blockingLabel = new Label("Blocks");
-        optionsLayout.addComponent(blockingLabel, 0, 9);
+        optionsLayout.addComponent(blockingLabel, 0, 10);
 
         blocks = new Slider(BusinessEntityLinkerConfig.BLOCKING_BOTTOM_LIMIT, BusinessEntityLinkerConfig.BLOCKING_TOP_LIMIT);
         blocks.setDescription("Controls blocking function of silk. 0 turns blocking off. Higher values may reduce recall but are necessary for reasonable execution time for larger datasets.");
         blocks.setWidth(100, Unit.PERCENTAGE);
-        optionsLayout.addComponent(blocks, 1, 9, 2, 9);
+        optionsLayout.addComponent(blocks, 1, 10, 2, 10);
     }
 
 }

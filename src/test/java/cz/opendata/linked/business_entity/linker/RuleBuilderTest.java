@@ -265,6 +265,28 @@ public class RuleBuilderTest {
     }
 
     @Test
+    public void testNameComparisonWithJaroWinkler() throws Exception {
+        config.setNumberOfSources(2);
+        config.setExact(false);
+        config.setMetric("jaroWinkler");
+        config.setNameThreshold(0.1);
+        builder = new RuleBuilder(config, workingDirPath);
+
+        Node linkageRule = builder.getRule().getElementsByTagName("LinkageRule").item(0);
+        NodeList components = linkageRule.getChildNodes();
+        assertThat(components.getLength(), is(1));
+
+        Element compare = (Element) components.item(0);
+        assertThat(compare.getNodeName(), is("Compare"));
+        assertThat(compare.getAttribute("metric"), is("jaroWinkler"));
+        assertThat(compare.getAttribute("threshold"), is("0.1"));
+        assertThat(compare.getAttribute("required"), is("true"));
+
+        assertTrue(compare.getElementsByTagName("TransformInput").getLength() == 4);
+        assertTrue(compare.getElementsByTagName("Input").getLength() == 2);
+    }
+
+    @Test
     public void testNameComparisonWithSingleSource() throws Exception {
         config.setNumberOfSources(1);
         config.setExact(false);
