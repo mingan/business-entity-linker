@@ -48,10 +48,6 @@ public class BusinessEntityLinker extends ConfigurableBase<BusinessEntityLinkerC
 
 	@Override
 	public AbstractConfigDialog<BusinessEntityLinkerConfig> getConfigurationDialog() {
-        config.setNumberOfSources(1);
-        if (targetData != null) {
-            config.setNumberOfSources(2);
-        }
         return new BusinessEntityLinkerDialog();
     }
 
@@ -60,16 +56,21 @@ public class BusinessEntityLinker extends ConfigurableBase<BusinessEntityLinkerC
 			throws DPUException,
 				DataUnitException {
 
+
         String workingDirPath = context.getWorkingDir().getPath();
-        if (sourceData != null) {
-            sourceData.loadToFile(new File(workingDirPath + File.separator + "source.nt"), RDFFormatType.NT);
+
+        if (!config.isSparqlA()) {
+            if (sourceData != null) {
+                sourceData.loadToFile(new File(workingDirPath + File.separator + "source.nt"), RDFFormatType.NT);
+            }
         }
 
-        if (targetData != null) {
-            targetData.loadToFile(new File(workingDirPath + File.separator + "target.nt"), RDFFormatType.NT);
-            config.setNumberOfSources(2);
+        if (config.getNumberOfSources() == 2 && !config.isSparqlB()) {
+            if (targetData != null) {
+                targetData.loadToFile(new File(workingDirPath + File.separator + "target.nt"), RDFFormatType.NT);
+            }
         }
-        config.setNumberOfSources(2);
+
         // build a linkage rule based on config
         RuleBuilder builder = new RuleBuilder(config, workingDirPath);
 
