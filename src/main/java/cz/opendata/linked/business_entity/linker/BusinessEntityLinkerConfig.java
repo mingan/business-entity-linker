@@ -34,6 +34,12 @@ public class BusinessEntityLinkerConfig extends DPUConfigObjectBase {
     private boolean exact = true;
     private int blocking = 1000;
 
+    private boolean includeGeo = false;
+    private String geoPropertyPathA = "/schema:address/schema:geo/wgs84:geometry";
+    private String geoPropertyPathB = "/schema:address/schema:geo/wgs84:geometry";
+    private int geoThreshold = 100;
+    private int nameWeight = 3;
+
     public static final int BLOCKING_TOP_LIMIT = 65535;
     public static final int BLOCKING_BOTTOM_LIMIT = 0;
 
@@ -258,5 +264,45 @@ public class BusinessEntityLinkerConfig extends DPUConfigObjectBase {
 
     public void setMetric(String metric) {
         this.metric = metric;
+    }
+
+    public boolean isIncludeGeo() {
+        return includeGeo;
+    }
+
+    public void setIncludeGeo(boolean includeGeo) {
+        this.includeGeo = includeGeo;
+    }
+
+    public int getNameWeight() {
+        return nameWeight;
+    }
+
+    public void setNameWeight(int nameWeight) {
+        this.nameWeight = nameWeight;
+    }
+
+    public int getGeoThreshold() {
+        return geoThreshold;
+    }
+
+    public void setGeoThreshold(int geoThreshold) {
+        this.geoThreshold = geoThreshold;
+    }
+
+    public String getGeoPropertyPathA() {
+        return geoPropertyPathA;
+    }
+
+    public void setGeoPropertyPathA(String geoPropertyPathA) {
+        this.geoPropertyPathA = geoPropertyPathA;
+    }
+
+    public String getGeoPropertyPathB() {
+        return geoPropertyPathB;
+    }
+
+    public void setGeoPropertyPathB(String geoPropertyPathB) {
+        this.geoPropertyPathB = geoPropertyPathB;
     }
 }

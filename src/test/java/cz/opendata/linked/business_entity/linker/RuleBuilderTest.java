@@ -15,6 +15,7 @@ import java.io.StringWriter;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -324,7 +325,68 @@ public class RuleBuilderTest {
         assertThat(blocking.getAttribute("enabled"), is("true"));
     }
 
+    @Test
+    public void testGeoAggregation() throws Exception {
+        config.setSelfLink(false);
+        config.setExact(false);
+        config.setIncludeGeo(true);
+        String propertyPathA = "/wgs84:geo";
+        String propertyPathB = "/schema:foo/wgs84:geo";
+        config.setGeoPropertyPathA(propertyPathA);
+        config.setGeoPropertyPathB(propertyPathB);
+        int geoThreshold = 50;
+        config.setGeoThreshold(geoThreshold);
+        int nameWeight = 10;
+        config.setNameWeight(nameWeight);
 
+
+        builder = new RuleBuilder(config, workingDirPath);
+        Document rule = builder.getRule();
+        NodeList aggregations = rule.getElementsByTagName("Aggregate");
+        assertEquals(aggregations.getLength(), 1);
+
+        Element average = (Element) aggregations.item(0);
+        assertThat(average.getAttribute("type"), is("average"));
+        assertThat(average.getAttribute("required"), is("true"));
+
+        NodeList comparisons = average.getElementsByTagName("Compare");
+        assertEquals(comparisons.getLength(), 2);
+        assertThat(((Element) comparisons.item(0)).getAttribute("weight"), is(String.valueOf(nameWeight)));
+        Element geo = (Element) comparisons.item(1);
+        assertThat(geo.getAttribute("metric"), is("wgs84"));
+        assertThat(geo.getAttribute("threshold"), is(String.valueOf(geoThreshold)));
+
+        NodeList inputs = geo.getElementsByTagName("Input");
+        assertEquals(inputs.getLength(), 2);
+        assertTrue(((Element) inputs.item(0)).getAttribute("path").contains(propertyPathA));
+        assertTrue(((Element) inputs.item(1)).getAttribute("path").contains(propertyPathB));
+
+        assertEquals(geo.getElementsByTagName("Param").getLength(), 1);
+    }
+
+    @Test
+    public void testGeoAggregationNotDoneForIdents() throws Exception {
+        config.setSelfLink(false);
+        config.setExact(true);
+        config.setIncludeGeo(true);
+        builder = new RuleBuilder(config, workingDirPath);
+
+        Document rule = builder.getRule();
+        NodeList aggregations = rule.getElementsByTagName("Aggregate");
+        assertEquals(aggregations.getLength(), 0);
+    }
+
+    @Test
+    public void testGeoAggregationWithSelfLinking() throws Exception {
+        config.setSelfLink(true);
+        config.setExact(false);
+        config.setIncludeGeo(true);
+        builder = new RuleBuilder(config, workingDirPath);
+
+        Document rule = builder.getRule();
+        NodeList aggregations = rule.getElementsByTagName("Aggregate");
+        assertEquals(aggregations.getLength(), 2);
+    }
 
     private void printXml(Document doc) {
         StringWriter w = new StringWriter();
