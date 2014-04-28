@@ -30,7 +30,7 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
     private Slider nameThreshold;
     private Label nameThresholdLabel;
     private Label blockingLabel;
-    private Slider blocks;
+    private TextField blocks;
     private Label cutoffLabel;
     private Slider cutoff;
 
@@ -90,7 +90,7 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         nameA.setValue(config.getNameSelectionA());
         nameB.setValue(config.getNameSelectionB());
         nameThreshold.setValue(config.getNameThreshold() * 100);
-        blocks.setValue(new Double(config.getBlocking()));
+        blocks.setValue(String.valueOf(config.getBlocking()));
         cutoff.setValue(config.getConfidenceCutoff());
         
         sparqlA.setValue(!config.isSparqlA());
@@ -130,7 +130,7 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         config.setNameSelectionA(nameA.getValue().toString());
         config.setNameSelectionB(nameB.getValue().toString());
         config.setNameThreshold(nameThreshold.getValue() / 100);
-        config.setBlocking(blocks.getValue().intValue());
+        config.setBlocking(Integer.parseInt(blocks.getValue()));
         config.setConfidenceCutoff(cutoff.getValue());
 
         config.setSparqlA(!sparqlA.getValue());
@@ -602,8 +602,8 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         nameThresholdLabel = new Label("Threshold");
         optionsLayout.addComponent(nameThresholdLabel, 0, 8);
 
-        nameThreshold = new Slider(0.0, 100.0, 1);
-        nameThreshold.setDescription("Names are compared using Levenshtein distance. Threshold specifies how much the names can differ in percent. Names are transformed to lowercase and all special characters are removed prior to comparison.");
+        nameThreshold = new Slider(0.0, 100.0, 2);
+        nameThreshold.setDescription("Names are compared using selected distance. Threshold specifies how much the names can differ in percent. Names are transformed to lowercase and all special characters are removed prior to comparison.");
         nameThreshold.setWidth(100, Unit.PERCENTAGE);
         optionsLayout.addComponent(nameThreshold, 1, 8, 2, 8);
 
@@ -627,9 +627,27 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         blockingLabel = new Label("Blocks");
         optionsLayout.addComponent(blockingLabel, 0, 10);
 
-        blocks = new Slider(BusinessEntityLinkerConfig.BLOCKING_BOTTOM_LIMIT, BusinessEntityLinkerConfig.BLOCKING_TOP_LIMIT);
-        blocks.setDescription("Controls blocking function of silk. 0 turns blocking off. Higher values may reduce recall but are necessary for reasonable execution time for larger datasets.");
+        blocks = new TextField();
+        blocks.setDescription("Controls blocking function of silk. 0 turns blocking off. Higher values may reduce recall but are necessary for reasonable execution time for larger datasets. Maximum value is " + BusinessEntityLinkerConfig.BLOCKING_TOP_LIMIT);
         blocks.setWidth(100, Unit.PERCENTAGE);
+        blocks.addValidator(new Validator() {
+            @Override
+            public void validate(Object o) throws InvalidValueException {
+            int val = Integer.parseInt(blocks.getValue());
+            if (val < BusinessEntityLinkerConfig.BLOCKING_BOTTOM_LIMIT) {
+                throw new InvalidValueException("Blocks must be non-negative, use 0 for turning the option off.");
+            }
+            }
+        });
+        blocks.addValidator(new Validator() {
+            @Override
+            public void validate(Object o) throws InvalidValueException {
+                int val = Integer.parseInt(blocks.getValue());
+                if (val > BusinessEntityLinkerConfig.BLOCKING_TOP_LIMIT) {
+                    throw new InvalidValueException("Maximum allowed value by Silk is " + BusinessEntityLinkerConfig.BLOCKING_TOP_LIMIT);
+                }
+            }
+        });
         optionsLayout.addComponent(blocks, 1, 10, 2, 10);
     }
 
