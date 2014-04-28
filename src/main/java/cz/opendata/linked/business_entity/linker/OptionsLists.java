@@ -22,6 +22,8 @@ public class OptionsLists {
         ident.add("schema:taxID");
         ident.add("gr:vatID");
         ident.add("gr:taxID");
+        ident.add("org:identifier");
+        ident.add("rov:registration/skos:notation");
     }
 
     static final List<String> name = new LinkedList<>();
@@ -30,8 +32,16 @@ public class OptionsLists {
         name.add("schema:name");
         name.add("gr:legalName");
         name.add("gr:name");
+        name.add("rov:legalName");
         name.add("dcterms:title");
         name.add("rdfs:label");
+    }
+
+    static final List<String> metric = new LinkedList<>();
+    static {
+        metric.add("levenshtein");
+        metric.add("jaro");
+        metric.add("jaroWinkler");
     }
 
     public static String getCustomOrg() {
