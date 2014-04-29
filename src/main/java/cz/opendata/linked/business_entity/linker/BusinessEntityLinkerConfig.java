@@ -40,9 +40,6 @@ public class BusinessEntityLinkerConfig extends DPUConfigObjectBase {
     private int geoThreshold = 100;
     private int nameWeight = 3;
 
-    public static final int BLOCKING_TOP_LIMIT = 65535;
-    public static final int BLOCKING_BOTTOM_LIMIT = 0;
-
     private String silkPath = "";
     private int javaMemory = 2048;
 
@@ -142,7 +139,7 @@ public class BusinessEntityLinkerConfig extends DPUConfigObjectBase {
     }
 
     public void setBlocking(int blocking) {
-        if (BLOCKING_BOTTOM_LIMIT <= blocking && blocking <= BLOCKING_TOP_LIMIT) {
+        if (BusinessEntityLinker.BLOCKING_BOTTOM_LIMIT <= blocking && blocking <= BusinessEntityLinker.BLOCKING_TOP_LIMIT) {
             this.blocking = blocking;
         }
     }

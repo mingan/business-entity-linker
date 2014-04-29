@@ -36,6 +36,7 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
 
     private Set<Component> activeOnIdent = new HashSet<>();
     private Set<Component> activeOnName = new HashSet<>();
+    private Set<Component> activeOnGeo = new HashSet<>();
 
     private GridLayout inputLayout;
     private GridLayout optionsLayout;
@@ -60,6 +61,14 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
     private TextArea orgBCustom;
     private Label labelMetric;
     private ComboBox metric;
+    private CheckBox useGeo;
+    private TextField nameWeight;
+    private TextField geoPropertyPathA;
+    private TextField geoPropertyPathB;
+    private TextField geoThreshold;
+    private Label geoThresholdLabel;
+    private Label geoPath;
+    private Label nameWeightLabel;
 
     public BusinessEntityLinkerDialog() {
 		super(BusinessEntityLinkerConfig.class);
@@ -92,7 +101,12 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         nameThreshold.setValue(config.getNameThreshold() * 100);
         blocks.setValue(String.valueOf(config.getBlocking()));
         cutoff.setValue(config.getConfidenceCutoff());
-        
+
+        useGeo.setValue(config.isIncludeGeo());
+        geoPropertyPathA.setValue(config.getGeoPropertyPathA());
+        geoPropertyPathB.setValue(config.getGeoPropertyPathB());
+        geoThreshold.setValue(String.valueOf(config.getGeoThreshold()));
+
         sparqlA.setValue(!config.isSparqlA());
         sparqlAEndpoint.setValue(config.getSparqlAEndpoint());
         sparqlALogin.setValue(config.getSparqlALogin());
@@ -133,6 +147,11 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         config.setBlocking(Integer.parseInt(blocks.getValue()));
         config.setConfidenceCutoff(cutoff.getValue());
 
+        config.setIncludeGeo(useGeo.getValue());
+        config.setGeoPropertyPathA(geoPropertyPathA.getValue());
+        config.setGeoPropertyPathB(geoPropertyPathB.getValue());
+        config.setGeoThreshold(Integer.parseInt(geoThreshold.getValue()));
+
         config.setSparqlA(!sparqlA.getValue());
         config.setSparqlAEndpoint(sparqlAEndpoint.getValue());
         config.setSparqlALogin(sparqlALogin.getValue());
@@ -161,6 +180,10 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
 
     private boolean isExact() {
         return comparisonMode.getValue().toString().equals(EQUALITY);
+    }
+
+    private boolean isUseGeo() {
+        return useGeo.getValue();
     }
 
     private void setComparisonMode(boolean exact) {
@@ -231,6 +254,7 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
                     orgBCustom.setEnabled(false);
                     identB.setEnabled(false);
                     nameB.setEnabled(false);
+                    geoPropertyPathB.setEnabled(false);
                 } else {
                     sparqlB.setEnabled(true);
                     if (!sparqlB.getValue()) {
@@ -242,6 +266,9 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
                         identB.setEnabled(true);
                     } else {
                         nameB.setEnabled(true);
+                        if (isUseGeo()) {
+                            geoPropertyPathB.setEnabled(true);
+                        }
                     }
                 }
             }
@@ -368,7 +395,7 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
     }
 
     private void buildOptionsTab() {
-        optionsLayout = new GridLayout(3, 11);
+        optionsLayout = new GridLayout(3, 15);
         optionsLayout.setMargin(true);
         optionsLayout.setSpacing(true);
         optionsLayout.setWidth("100%");
@@ -391,6 +418,7 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         buildResourceTypeSelection();
         buildIdentSelection();
         buildNameSelection();
+        buildGeoSelection();
         buildServiceFields();
 
         tabSheet.addTab(optionsLayout, "Linkage Rule");
@@ -464,13 +492,31 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
     private void enableName(boolean enabled) {
         if (enabled == false || !checkboxSelfLink.getValue()) {
             enableSetOfFields(activeOnName, enabled);
+            enableGeo(enabled);
         } else {
             metric.setEnabled(enabled);
             nameA.setEnabled(enabled);
             nameThreshold.setEnabled(enabled);
             cutoff.setEnabled(enabled);
+            useGeo.setEnabled(enabled);
+
             if (!checkboxSelfLink.getValue()) {
                 nameB.setEnabled(enabled);
+            }
+            enableGeo(isUseGeo());
+        }
+    }
+
+    private void enableGeo(boolean enabled) {
+        if (enabled == false || !checkboxSelfLink.getValue()) {
+            enableSetOfFields(activeOnGeo, enabled);
+        } else {
+            geoPropertyPathA.setEnabled(enabled);
+            nameWeight.setEnabled(enabled);
+            geoThreshold.setEnabled(enabled);
+
+            if (!checkboxSelfLink.getValue()) {
+                geoPropertyPathB.setEnabled(enabled);
             }
         }
     }
@@ -613,28 +659,112 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         activeOnName.add(metric);
     }
 
+    private void buildGeoSelection() {
+        useGeo = new CheckBox("Include comparison of geocoordinates");
+        useGeo.addValueChangeListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent event) {
+            if (useGeo.getValue()) {
+                enableGeo(true);
+            } else {
+                enableGeo(false);
+            }
+            }
+        });
+        optionsLayout.addComponent(useGeo, 0, 9, 2, 9);
+
+        nameWeightLabel = new Label("Weight of name");
+        nameWeight = new TextField();
+        nameWeight.setDescription("Positive integers. Name and geocoordinates are averaged, the weight of geocoordinates is one, weight of the comparison will probably be higher.");
+        nameWeight.setWidth(100, Unit.PERCENTAGE);
+        nameWeight.addValidator(new Validator() {
+            @Override
+            public void validate(Object o) throws InvalidValueException {
+            String val = nameWeight.getValue();
+            if (isUseGeo() && (val == null || val.trim().equals("") || Integer.parseInt(val) < 1)) {
+                throw new InvalidValueException("Values below 1 are not allowed");
+            }
+            }
+        });
+
+        optionsLayout.addComponent(nameWeightLabel, 0, 10);
+        optionsLayout.addComponent(nameWeight, 1, 10, 2, 10);
+
+        geoPath = new Label("Property path");
+        geoPropertyPathA = new TextField();
+        geoPropertyPathB = new TextField();
+        geoPropertyPathA.setWidth(100, Unit.PERCENTAGE);
+        geoPropertyPathB.setWidth(100, Unit.PERCENTAGE);
+        final String desc = "Accepts Silk property path to wgs84:geometry property which consists of 'lat lon' as a string. The supplied values must start with '/' and is relative to the business entity being compared.";
+        geoPropertyPathA.setDescription(desc);
+        geoPropertyPathB.setDescription(desc);
+        geoPropertyPathA.addValidator(new Validator() {
+            @Override
+            public void validate(Object o) throws InvalidValueException {
+                String val = geoPropertyPathA.getValue();
+                if (isUseGeo() && (val == null || val.trim().equals(""))) {
+                    throw new InvalidValueException("Path must be specified and start with '/'.");
+                }
+            }
+        });
+        geoPropertyPathB.addValidator(new Validator() {
+            @Override
+            public void validate(Object o) throws InvalidValueException {
+                String val = geoPropertyPathB.getValue();
+                if (isUseGeo() && !checkboxSelfLink.getValue() && (val == null || val.trim().equals(""))) {
+                    throw new InvalidValueException("Path must be specified and start with '/'.");
+                }
+            }
+        });
+
+        optionsLayout.addComponent(geoPath, 0, 11);
+        optionsLayout.addComponent(geoPropertyPathA, 1, 11);
+        optionsLayout.addComponent(geoPropertyPathB, 2, 11);
+
+        geoThresholdLabel = new Label("Distance threshold (km)");
+
+        geoThreshold = new TextField();
+        geoThreshold.setWidth(100, Unit.PERCENTAGE);
+        geoThreshold.addValidator(new Validator() {
+            @Override
+            public void validate(Object o) throws InvalidValueException {
+                String val = geoThreshold.getValue();
+                if (isUseGeo() && (val == null || val.trim().equals("") || Integer.parseInt(val) < 0)) {
+                    throw new InvalidValueException("Distance must be specified.");
+                }
+            }
+        });
+
+        optionsLayout.addComponent(geoThresholdLabel, 0, 12);
+        optionsLayout.addComponent(geoThreshold, 1, 12, 2, 12);
+
+        activeOnName.add(useGeo);
+        activeOnGeo.add(geoPropertyPathA);
+        activeOnGeo.add(geoPropertyPathB);
+        activeOnGeo.add(nameWeight);
+        activeOnGeo.add(geoThreshold);
+    }
+
     private void buildServiceFields() {
-        cutoffLabel = new Label("Cutoff");
-        optionsLayout.addComponent(cutoffLabel, 0, 9);
+        cutoffLabel = new Label("Confidence cutoff");
+        optionsLayout.addComponent(cutoffLabel, 0, 13);
 
         cutoff = new Slider(0.0, 1.0, 1);
-        cutoff.setDescription("Generated links with normalized score from interval (0, 1> above cutoff limit are considered correct. The rest are placed in secondary output data unit requiring manual verification.");
+        cutoff.setDescription("Generated links with averaged normalized score above cutoff limit are considered correct. The rest (with score greater than 0) are placed in secondary output data unit requiring manual verification.");
         cutoff.setWidth(100, Unit.PERCENTAGE);
-        optionsLayout.addComponent(cutoff, 1, 9, 2, 9);
-
-        activeOnName.add(cutoff);
+        optionsLayout.addComponent(cutoff, 1, 13, 2, 13);
 
         blockingLabel = new Label("Blocks");
-        optionsLayout.addComponent(blockingLabel, 0, 10);
+        optionsLayout.addComponent(blockingLabel, 0, 14);
 
         blocks = new TextField();
-        blocks.setDescription("Controls blocking function of silk. 0 turns blocking off. Higher values may reduce recall but are necessary for reasonable execution time for larger datasets. Maximum value is " + BusinessEntityLinkerConfig.BLOCKING_TOP_LIMIT);
+        blocks.setDescription("Controls blocking function of silk. 0 turns blocking off. Higher values may reduce recall but are necessary for reasonable execution time for larger datasets. Maximum value is " + BusinessEntityLinker.BLOCKING_TOP_LIMIT);
         blocks.setWidth(100, Unit.PERCENTAGE);
         blocks.addValidator(new Validator() {
             @Override
             public void validate(Object o) throws InvalidValueException {
             int val = Integer.parseInt(blocks.getValue());
-            if (val < BusinessEntityLinkerConfig.BLOCKING_BOTTOM_LIMIT) {
+            if (val < BusinessEntityLinker.BLOCKING_BOTTOM_LIMIT) {
                 throw new InvalidValueException("Blocks must be non-negative, use 0 for turning the option off.");
             }
             }
@@ -643,12 +773,12 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
             @Override
             public void validate(Object o) throws InvalidValueException {
                 int val = Integer.parseInt(blocks.getValue());
-                if (val > BusinessEntityLinkerConfig.BLOCKING_TOP_LIMIT) {
-                    throw new InvalidValueException("Maximum allowed value by Silk is " + BusinessEntityLinkerConfig.BLOCKING_TOP_LIMIT);
+                if (val > BusinessEntityLinker.BLOCKING_TOP_LIMIT) {
+                    throw new InvalidValueException("Maximum allowed value by Silk is " + BusinessEntityLinker.BLOCKING_TOP_LIMIT);
                 }
             }
         });
-        optionsLayout.addComponent(blocks, 1, 10, 2, 10);
+        optionsLayout.addComponent(blocks, 1, 14, 2, 14);
     }
 
 }

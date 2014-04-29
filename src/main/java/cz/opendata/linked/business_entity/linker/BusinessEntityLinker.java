@@ -28,6 +28,9 @@ import java.io.*;
 public class BusinessEntityLinker extends ConfigurableBase<BusinessEntityLinkerConfig>
 		implements ConfigDialogProvider<BusinessEntityLinkerConfig> {
 
+    public static final int BLOCKING_TOP_LIMIT = 65535;
+    public static final int BLOCKING_BOTTOM_LIMIT = 0;
+
     private static final Logger log = LoggerFactory.getLogger(BusinessEntityLinker.class);
 	
 	@InputDataUnit(name = "source", optional = true)
