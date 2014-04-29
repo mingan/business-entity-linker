@@ -240,21 +240,6 @@ public class BusinessEntityLinkerConfig extends DPUConfigObjectBase {
         this.silkPath = silkPath;
     }
 
-    public static boolean isBLOCKING_BOTTOM_LIMIT() {
-        return true;
-    }
-
-    public static boolean isBLOCKING_TOP_LIMIT() {
-        return true;
-    }
-
-
-    public static void setBLOCKING_BOTTOM_LIMIT() {
-    }
-
-    public static void setBLOCKING_TOP_LIMIT() {
-    }
-
     public String getMetric() {
         return metric;
     }
