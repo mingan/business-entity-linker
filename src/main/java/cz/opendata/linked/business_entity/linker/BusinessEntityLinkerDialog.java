@@ -99,6 +99,7 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         nameA.setValue(config.getNameSelectionA());
         nameB.setValue(config.getNameSelectionB());
         nameThreshold.setValue(config.getNameThreshold() * 100);
+        metric.setValue(config.getMetric());
         blocks.setValue(String.valueOf(config.getBlocking()));
         cutoff.setValue(config.getConfidenceCutoff());
 
@@ -144,6 +145,7 @@ public class BusinessEntityLinkerDialog extends BaseConfigDialog<BusinessEntityL
         config.setNameSelectionA(nameA.getValue().toString());
         config.setNameSelectionB(nameB.getValue().toString());
         config.setNameThreshold(nameThreshold.getValue() / 100);
+        config.setMetric(normalizeSelection(metric.getValue()));
         config.setBlocking(Integer.parseInt(blocks.getValue()));
         config.setConfidenceCutoff(cutoff.getValue());
 

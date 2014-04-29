@@ -16,7 +16,7 @@ public class Schemas {
         schemas.put("skos", "http://www.w3.org/2004/02/skos/core#");
         schemas.put("schema", "http://schema.org/");
         schemas.put("owl", "http://www.w3.org/2002/07/owl#");
-        schemas.put("organization", "http://www.w3.org/ns/organization#");
+        schemas.put("org", "http://www.w3.org/ns/organization#");
         schemas.put("dcterms", "http://purl.org/dc/terms/#");
         schemas.put("rov", "http://www.w3.org/ns/regorg#");
     }
