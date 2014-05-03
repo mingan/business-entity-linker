@@ -11,7 +11,7 @@ public class OptionsLists {
     static {
         organization.add("schema:Organization");
         organization.add("gr:BusinessEntity");
-        organization.add("organization:Organization");
+        organization.add("org:Organization");
         organization.add("custom");
     }
 
